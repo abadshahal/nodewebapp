@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify OTP</title>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: #111;
+  padding: 30px 20px;
+  border-radius: 12px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.08);
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.otp-box {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.otp-box input {
+  width: 100%;
+  max-width: 45px;
+  aspect-ratio: 1/1;
+  font-size: 18px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #000;
+  color: #fff;
+  outline: none;
+}
+
+.otp-box input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px #007bff;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.timer {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #888;
+}
+
+.resend {
+  margin-top: 10px;
+}
+
+.resend button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.resend button:disabled {
+  color: #555;
+  cursor: not-allowed;
+}
+
+@media (max-width: 400px) {
+  .otp-box input {
+    max-width: 38px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Verify OTP</h2>
+  <p>Enter the 6-digit code sent to your email</p>
+
+  <div class="otp-box">
+    <input maxlength="1">
+    <input maxlength="1">
+    <input maxlength="1">
+    <input maxlength="1">
+    <input maxlength="1">
+    <input maxlength="1">
+  </div>
+
+  <!-- Hidden email field -->
+  <input type="hidden" id="email" value="<%=email%>">
+
+  <button id="verifyBtn" disabled>Verify</button>
+
+  <div class="timer">
+    Resend OTP in <span id="countdown">30</span>s
+  </div>
+
+  <div class="resend">
+    <button id="resendBtn" disabled>Resend OTP</button>
+  </div>
+</div>
+
+<script>
+const inputs = document.querySelectorAll(".otp-box input");
+const verifyBtn = document.getElementById("verifyBtn");
+const resendBtn = document.getElementById("resendBtn");
+const countdown = document.getElementById("countdown");
+const emailInput = document.getElementById("email");
+
+let time = 30;
+let timer;
+
+// ================= INPUT =================
+inputs.forEach((input, index) => {
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/[^0-9]/g, "");
+
+    if (input.value && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    }
+
+    validateOTP();
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && !input.value && index > 0) {
+      inputs[index - 1].focus();
+    }
+  });
+});
+
+// Paste support
+inputs[0].addEventListener("paste", (e) => {
+  let data = e.clipboardData.getData("text").slice(0, 6);
+  if (!/^\d+$/.test(data)) return;
+  inputs.forEach((input, i) => {
+    input.value = data[i] || "";
+  });
+  validateOTP();
+});
+
+// ================= VALIDATION =================
+function getOTP() {
+  return [...inputs].map(i => i.value).join("");
+}
+
+function validateOTP() {
+  verifyBtn.disabled = getOTP().length !== 6;
+}
+
+// ================= VERIFY =================
+verifyBtn.addEventListener("click", async () => {
+  const otp = getOTP();
+  const email = emailInput.value; // ✅ include email
+
+  verifyBtn.disabled = true;
+  verifyBtn.innerText = "Verifying...";
+
+  try {
+    const res = await fetch("/verify-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp, email }) // ✅ send email
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "OTP Verified 🎉",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      setTimeout(() => {
+        window.location.href = data.redirectUrl;
+      }, 1500);
+
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: data.message || "Invalid OTP"
+      });
+    }
+
+  } catch (err) {
+    Swal.fire("Error", "Server error", "error");
+  }
+
+  verifyBtn.disabled = false;
+  verifyBtn.innerText = "Verify";
+});
+
+// ================= TIMER =================
+function startTimer() {
+  resendBtn.disabled = true;
+
+  timer = setInterval(() => {
+    time--;
+    countdown.innerText = time;
+
+    if (time <= 0) {
+      clearInterval(timer);
+      resendBtn.disabled = false;
+      countdown.innerText = "0";
+    }
+  }, 1000);
+}
+
+// ================= RESEND =================
+resendBtn.addEventListener("click", async () => {
+  const email = emailInput.value; // ✅ include email for resend
+  try {
+    const res = await fetch("/resend-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire("Sent!", "OTP resent successfully", "success");
+      resetTimer();
+      clearInputs();
+    } else {
+      Swal.fire("Error", data.message || "Failed to resend", "error");
+    }
+
+  } catch {
+    Swal.fire("Error", "Server error", "error");
+  }
+});
+
+// ================= HELPERS =================
+function resetTimer() {
+  clearInterval(timer);
+  time = 30;
+  countdown.innerText = time;
+  startTimer();
+}
+
+function clearInputs() {
+  inputs.forEach(i => i.value = "");
+  inputs[0].focus();
+}
+
+// Start timer
+startTimer();
+</script>
+
+</body>
+</html>

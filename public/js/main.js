@@ -1,216 +1,222 @@
-/*  ---------------------------------------------------
-    Template Name: Male Fashion
-    Description: Male Fashion - ecommerce teplate
-    Author: Colorib
-    Author URI: https://www.colorib.com/
-    Version: 1.0
-    Created: Colorib
----------------------------------------------------------  */
+/* =============================================
+   VELORIAN — MAIN JAVASCRIPT
+   ============================================= */
 
-'use strict';
+(function () {
+  "use strict";
 
-(function ($) {
+  /* ---------- NAVBAR SCROLL EFFECT ---------- */
+  const navbar = document.getElementById("navbar");
 
-    /*------------------
-        Preloader
-    --------------------*/
-    $(window).on('load', function () {
-        $(".loader").fadeOut();
-        $("#preloder").delay(200).fadeOut("slow");
-
-        /*------------------
-            Gallery filter
-        --------------------*/
-        $('.filter__controls li').on('click', function () {
-            $('.filter__controls li').removeClass('active');
-            $(this).addClass('active');
-        });
-        if ($('.product__filter').length > 0) {
-            var containerEl = document.querySelector('.product__filter');
-            var mixer = mixitup(containerEl);
-        }
-    });
-
-    /*------------------
-        Background Set
-    --------------------*/
-    $('.set-bg').each(function () {
-        var bg = $(this).data('setbg');
-        $(this).css('background-image', 'url(' + bg + ')');
-    });
-
-    //Search Switch
-    $('.search-switch').on('click', function () {
-        $('.search-model').fadeIn(400);
-    });
-
-    $('.search-close-switch').on('click', function () {
-        $('.search-model').fadeOut(400, function () {
-            $('#search-input').val('');
-        });
-    });
-
-    /*------------------
-		Navigation
-	--------------------*/
-    $(".mobile-menu").slicknav({
-        prependTo: '#mobile-menu-wrap',
-        allowParentLinks: true
-    });
-
-    /*------------------
-        Accordin Active
-    --------------------*/
-    $('.collapse').on('shown.bs.collapse', function () {
-        $(this).prev().addClass('active');
-    });
-
-    $('.collapse').on('hidden.bs.collapse', function () {
-        $(this).prev().removeClass('active');
-    });
-
-    //Canvas Menu
-    $(".canvas__open").on('click', function () {
-        $(".offcanvas-menu-wrapper").addClass("active");
-        $(".offcanvas-menu-overlay").addClass("active");
-    });
-
-    $(".offcanvas-menu-overlay").on('click', function () {
-        $(".offcanvas-menu-wrapper").removeClass("active");
-        $(".offcanvas-menu-overlay").removeClass("active");
-    });
-
-    /*-----------------------
-        Hero Slider
-    ------------------------*/
-    $(".hero__slider").owlCarousel({
-        loop: true,
-        margin: 0,
-        items: 1,
-        dots: false,
-        nav: true,
-        navText: ["<span class='arrow_left'><span/>", "<span class='arrow_right'><span/>"],
-        animateOut: 'fadeOut',
-        animateIn: 'fadeIn',
-        smartSpeed: 1200,
-        autoHeight: false,
-        autoplay: false
-    });
-
-    /*--------------------------
-        Select
-    ----------------------------*/
-    $("select").niceSelect();
-
-    /*-------------------
-		Radio Btn
-	--------------------- */
-    $(".product__color__select label, .shop__sidebar__size label, .product__details__option__size label").on('click', function () {
-        $(".product__color__select label, .shop__sidebar__size label, .product__details__option__size label").removeClass('active');
-        $(this).addClass('active');
-    });
-
-    /*-------------------
-		Scroll
-	--------------------- */
-    $(".nice-scroll").niceScroll({
-        cursorcolor: "#0d0d0d",
-        cursorwidth: "5px",
-        background: "#e5e5e5",
-        cursorborder: "",
-        autohidemode: true,
-        horizrailenabled: false
-    });
-
-    /*------------------
-        CountDown
-    --------------------*/
-    // For demo preview start
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-
-    if(mm == 12) {
-        mm = '01';
-        yyyy = yyyy + 1;
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 40) {
+      navbar.classList.add("scrolled");
     } else {
-        mm = parseInt(mm) + 1;
-        mm = String(mm).padStart(2, '0');
+      navbar.classList.remove("scrolled");
     }
-    var timerdate = mm + '/' + dd + '/' + yyyy;
-    // For demo preview end
+  });
 
+  /* ---------- HAMBURGER / MOBILE MENU ---------- */
+  const hamburger = document.getElementById("hamburger");
+  const mobileMenu = document.getElementById("mobileMenu");
+  let menuOpen = false;
 
-    // Uncomment below and use your date //
+  hamburger.addEventListener("click", toggleMenu);
 
-    /* var timerdate = "2020/12/30" */
+  mobileMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
 
-    $("#countdown").countdown(timerdate, function (event) {
-        $(this).html(event.strftime("<div class='cd-item'><span>%D</span> <p>Days</p> </div>" + "<div class='cd-item'><span>%H</span> <p>Hours</p> </div>" + "<div class='cd-item'><span>%M</span> <p>Minutes</p> </div>" + "<div class='cd-item'><span>%S</span> <p>Seconds</p> </div>"));
+  document.addEventListener("click", (e) => {
+    if (menuOpen && !mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  function toggleMenu() {
+    menuOpen ? closeMenu() : openMenu();
+  }
+
+  function openMenu() {
+    menuOpen = true;
+    hamburger.classList.add("open");
+    mobileMenu.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMenu() {
+    menuOpen = false;
+    hamburger.classList.remove("open");
+    mobileMenu.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  /* ---------- HERO SLIDER ---------- */
+  const slides = document.querySelectorAll(".hero-slide");
+  const dots   = document.querySelectorAll(".dot");
+  let current  = 0;
+  let autoplay;
+
+  function showSlide(index) {
+    slides.forEach((s, i) => {
+      s.classList.toggle("active", i === index);
     });
-
-    /*------------------
-		Magnific
-	--------------------*/
-    $('.video-popup').magnificPopup({
-        type: 'iframe'
+    dots.forEach((d, i) => {
+      d.classList.toggle("active", i === index);
     });
+    current = index;
+  }
 
-    /*-------------------
-		Quantity change
-	--------------------- */
-    var proQty = $('.pro-qty');
-    proQty.prepend('<span class="fa fa-angle-up dec qtybtn"></span>');
-    proQty.append('<span class="fa fa-angle-down inc qtybtn"></span>');
-    proQty.on('click', '.qtybtn', function () {
-        var $button = $(this);
-        var oldValue = $button.parent().find('input').val();
-        if ($button.hasClass('inc')) {
-            var newVal = parseFloat(oldValue) + 1;
-        } else {
-            // Don't allow decrementing below zero
-            if (oldValue > 0) {
-                var newVal = parseFloat(oldValue) - 1;
-            } else {
-                newVal = 0;
+  document.getElementById("heroNext").addEventListener("click", () => {
+    const next = (current + 1) % slides.length;
+    showSlide(next);
+    resetAutoplay();
+  });
+
+  document.getElementById("heroPrev").addEventListener("click", () => {
+    const prev = (current - 1 + slides.length) % slides.length;
+    showSlide(prev);
+    resetAutoplay();
+  });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      showSlide(parseInt(dot.dataset.index));
+      resetAutoplay();
+    });
+  });
+
+  function startAutoplay() {
+    autoplay = setInterval(() => {
+      showSlide((current + 1) % slides.length);
+    }, 5000);
+  }
+
+  function resetAutoplay() {
+    clearInterval(autoplay);
+    startAutoplay();
+  }
+
+  startAutoplay();
+
+  /* ---------- TOUCH SWIPE SUPPORT ---------- */
+  const heroSection = document.querySelector(".hero");
+  let touchStartX = 0;
+
+  heroSection.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  heroSection.addEventListener("touchend", (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        showSlide((current + 1) % slides.length);
+      } else {
+        showSlide((current - 1 + slides.length) % slides.length);
+      }
+      resetAutoplay();
+    }
+  }, { passive: true });
+
+  /* ---------- ADD TO CART ---------- */
+  const cartToast  = document.getElementById("cartToast");
+  let toastTimeout;
+
+  document.querySelectorAll(".add-cart-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      // Animate button
+      btn.textContent = "✓ Added!";
+      btn.style.background = "#16a34a";
+      setTimeout(() => {
+        btn.textContent = "Add to Cart";
+        btn.style.background = "";
+      }, 1800);
+
+      // Show toast
+      clearTimeout(toastTimeout);
+      cartToast.classList.add("show");
+      toastTimeout = setTimeout(() => {
+        cartToast.classList.remove("show");
+      }, 2500);
+    });
+  });
+
+  /* ---------- ACTIVE NAV LINK ON SCROLL ---------- */
+  const sections = document.querySelectorAll("section[id]");
+  const navLinks = document.querySelectorAll(".nav-links a");
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${entry.target.id}`) {
+              link.classList.add("active");
             }
+          });
         }
-        $button.parent().find('input').val(newVal);
-    });
+      });
+    },
+    { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+  );
 
-    var proQty = $('.pro-qty-2');
-    proQty.prepend('<span class="fa fa-angle-left dec qtybtn"></span>');
-    proQty.append('<span class="fa fa-angle-right inc qtybtn"></span>');
-    proQty.on('click', '.qtybtn', function () {
-        var $button = $(this);
-        var oldValue = $button.parent().find('input').val();
-        if ($button.hasClass('inc')) {
-            var newVal = parseFloat(oldValue) + 1;
-        } else {
-            // Don't allow decrementing below zero
-            if (oldValue > 0) {
-                var newVal = parseFloat(oldValue) - 1;
-            } else {
-                newVal = 0;
-            }
+  sections.forEach((s) => sectionObserver.observe(s));
+
+  /* ---------- SCROLL REVEAL (cards fade in) ---------- */
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity  = "1";
+          entry.target.style.transform = "translateY(0)";
+          revealObserver.unobserve(entry.target);
         }
-        $button.parent().find('input').val(newVal);
-    });
+      });
+    },
+    { threshold: 0.1 }
+  );
 
-    /*------------------
-        Achieve Counter
-    --------------------*/
-    $('.cn_num').each(function () {
-        $(this).prop('Counter', 0).animate({
-            Counter: $(this).text()
-        }, {
-            duration: 4000,
-            easing: 'swing',
-            step: function (now) {
-                $(this).text(Math.ceil(now));
-            }
-        });
-    });
+  document.querySelectorAll(".product-card").forEach((card, i) => {
+    card.style.opacity   = "0";
+    card.style.transform = "translateY(30px)";
+    card.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s, box-shadow 0.3s ease, border-color 0.3s ease`;
+    revealObserver.observe(card);
+  });
 
-})(jQuery);
+  /* ---------- SUBSCRIBE FORM ---------- */
+  document.querySelectorAll(".subscribe-form").forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = form.querySelector("input[type='email']");
+      if (input.value.trim()) {
+        input.value = "";
+        input.placeholder = "Thanks for subscribing! ✓";
+        input.style.color = "#4ade80";
+        setTimeout(() => {
+          input.placeholder = "Enter your email";
+          input.style.color = "";
+        }, 3000);
+      }
+    });
+  });
+
+  /* ---------- SMOOTH SCROLL FOR ANCHOR LINKS ---------- */
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", (e) => {
+      const href = anchor.getAttribute("href");
+      if (href === "#") return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        const offset = 70; // navbar height
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+  });
+
+})();

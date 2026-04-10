@@ -1,0 +1,955 @@
+<%- include("../partials/user/header") %>
+
+<style>
+/* ===== PROFILE PAGE — VELORIAN ===== */
+.profile-page {
+  min-height: 100vh;
+  background: var(--navy);
+  padding: 40px 60px;
+}
+.profile-wrap {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* --- SIDEBAR --- */
+.p-sidebar {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: fit-content;
+  position: sticky;
+  top: 80px;
+}
+.p-sidebar-head {
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #0e1c40, #111d3c);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.p-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(37,99,235,0.4);
+  flex-shrink: 0;
+}
+.p-avatar-init {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--blue-accent);
+  border: 2px solid rgba(37,99,235,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.p-sidebar-name { font-size: 15px; font-weight: 600; color: var(--white); font-family: var(--font-body); }
+.p-sidebar-email { font-size: 11px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+.p-nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 20px;
+  font-size: 13px; font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(37,99,235,0.07);
+  transition: background var(--transition), color var(--transition);
+  font-family: var(--font-body);
+}
+.p-nav-item:hover { background: var(--navy-hover); color: var(--off-white); }
+.p-nav-item.active { background: var(--navy-hover); color: var(--white); border-left: 3px solid var(--blue-accent); }
+.p-nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.p-nav-item.logout { color: var(--red); border-bottom: none; }
+.p-nav-item.logout:hover { background: rgba(229,62,62,0.07); }
+
+/* --- MAIN --- */
+.p-main { display: flex; flex-direction: column; gap: 24px; }
+
+.p-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.p-card-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.p-card-title {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--white);
+}
+.p-card-body { padding: 24px; }
+
+/* --- PROFILE IMAGE HERO --- */
+.profile-hero {
+  display: flex; align-items: center; gap: 28px;
+  padding: 28px 24px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(37,99,235,0.04), transparent);
+}
+.profile-big-img {
+  position: relative; flex-shrink: 0;
+  width: 96px; height: 96px;
+}
+.profile-big-img img,
+.profile-big-init {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(37,99,235,0.3);
+}
+.profile-big-init {
+  background: linear-gradient(135deg, var(--blue-accent), #1a3a8a);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 32px; font-weight: 700; color: #fff;
+}
+.profile-hero-info h2 {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.profile-hero-info p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.hero-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero-tag {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 4px;
+}
+.hero-tag.google { background: rgba(37,99,235,0.12); color: var(--blue-glow); }
+.hero-tag.verified { background: rgba(74,222,128,0.1); color: #4ade80; }
+.hero-tag.member { background: rgba(200,168,75,0.1); color: var(--gold); }
+
+/* --- INFO GRID --- */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.info-item {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(37,99,235,0.07);
+  border-right: 1px solid rgba(37,99,235,0.07);
+}
+.info-item:nth-child(even) { border-right: none; }
+.info-item:nth-last-child(-n+2) { border-bottom: none; }
+.info-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.info-value { font-size: 14px; color: var(--off-white); font-weight: 500; }
+.info-value.empty { color: var(--muted); font-style: italic; font-size: 13px; }
+
+/* --- ADDRESS --- */
+.addr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.addr-card {
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  transition: border-color var(--transition);
+}
+.addr-card:hover { border-color: rgba(37,99,235,0.3); }
+.addr-type { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-accent); margin-bottom: 8px; }
+.addr-text { font-size: 13px; color: var(--off-white); line-height: 1.8; }
+.addr-default {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  background: rgba(37,99,235,0.15); color: var(--blue-glow);
+  padding: 2px 8px; border-radius: 4px;
+}
+.addr-empty {
+  text-align: center; padding: 32px;
+  font-size: 13px; color: var(--muted);
+}
+
+/* --- REFERRAL --- */
+.referral-box {
+  background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(200,168,75,0.04));
+  border: 1px solid rgba(200,168,75,0.2);
+  border-radius: 8px;
+  padding: 18px 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.referral-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.referral-code { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.2em; color: var(--gold); }
+
+/* --- FLASH ALERT --- */
+.flash-alert {
+  padding: 12px 18px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 16px;
+  font-family: var(--font-body);
+}
+.flash-alert.success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: #4ade80; }
+.flash-alert.error   { background: rgba(229,62,62,0.1);  border: 1px solid rgba(229,62,62,0.3);  color: var(--red); }
+
+/* --- SHARED MODAL STYLES --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 25, 0.82);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--navy-card);
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 12px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--white);
+}
+.modal-close {
+  background: none; border: none;
+  color: var(--muted); font-size: 20px;
+  cursor: pointer; line-height: 1;
+  transition: color var(--transition);
+}
+.modal-close:hover { color: var(--off-white); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px;
+}
+
+/* --- FORM FIELDS (shared by both modals) --- */
+.f-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.f-full { margin-bottom: 14px; }
+.f-label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.f-input {
+  width: 100%;
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px 13px;
+  font-size: 13px;
+  color: var(--off-white);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.f-input::placeholder { color: var(--muted); }
+.f-input:focus { border-color: rgba(37,99,235,0.5); }
+.f-input:disabled { opacity: 0.45; cursor: not-allowed; }
+.f-hint { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.f-radio-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.f-radio-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.f-radio-opt { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.f-radio-opt input { accent-color: var(--blue-accent); }
+.f-radio-opt span { font-size: 13px; color: var(--off-white); }
+.f-check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer; }
+.f-check-row input { accent-color: var(--blue-accent); }
+.f-check-row span { font-size: 13px; color: var(--off-white); }
+
+/* --- AVATAR UPLOAD (edit profile modal) --- */
+.ep-avatar-row {
+  display: flex; align-items: center; gap: 20px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(37,99,235,0.07);
+}
+.ep-avatar-wrap { position: relative; flex-shrink: 0; cursor: pointer; }
+.ep-avatar-img {
+  width: 72px; height: 72px;
+  border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(37,99,235,0.3);
+}
+.ep-avatar-init {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-accent), #1a3a8a);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 700; color: #fff;
+  border: 2px solid rgba(37,99,235,0.3);
+}
+.ep-avatar-overlay {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity var(--transition);
+}
+.ep-avatar-wrap:hover .ep-avatar-overlay { opacity: 1; }
+.ep-avatar-overlay svg { width: 18px; height: 18px; color: #fff; }
+.ep-avatar-info p { font-size: 13px; color: var(--off-white); font-weight: 500; margin-bottom: 4px; }
+.ep-avatar-info span { font-size: 11px; color: var(--muted); }
+.ep-upload-btn {
+  display: inline-block; margin-top: 10px;
+  font-size: 12px; font-weight: 500;
+  padding: 6px 14px; border-radius: 6px;
+  border: 1px solid var(--border); color: var(--muted);
+  background: none; cursor: pointer; font-family: inherit;
+  transition: color var(--transition), border-color var(--transition);
+}
+.ep-upload-btn:hover { color: var(--off-white); border-color: rgba(37,99,235,0.3); }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+  .profile-page { padding: 24px 16px; }
+  .profile-wrap { grid-template-columns: 1fr; }
+  .p-sidebar { position: static; }
+  .info-grid { grid-template-columns: 1fr; }
+  .addr-grid { grid-template-columns: 1fr; }
+  .info-item { border-right: none; }
+  .info-item:nth-last-child(-n+2) { border-bottom: 1px solid rgba(37,99,235,0.07); }
+  .info-item:last-child { border-bottom: none; }
+  .f-row { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="profile-page">
+  <div class="profile-wrap">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="p-sidebar">
+      <div class="p-sidebar-head">
+        <% if (user.profileImage) { %>
+          <img src="<%= user.profileImage %>?v=<%= Date.now() %>" class="p-avatar" />
+        <% } else { %>
+          <div class="p-avatar-init"><%= (user.firstname || 'U')[0].toUpperCase() %></div>
+        <% } %>
+        <div>
+          <div class="p-sidebar-name"><%= user.firstname %> <%= user.lastname %></div>
+          <div class="p-sidebar-email"><%= user.email %></div>
+        </div>
+      </div>
+      <a href="/profile" class="p-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </a>
+      <a href="/orders" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        My Orders
+      </a>
+      <a href="/wishlist" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        My Wishlist
+      </a>
+      <a href="/wallet" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        My Wallet
+      </a>
+
+        <a href="/reset-password" class="p-nav-item">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="11" width="18" height="10" rx="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+  Change Password
+</a>
+
+      <a href="/logout" class="p-nav-item logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </a>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="p-main">
+
+      <!-- Flash messages -->
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="flash-alert success">✓ &nbsp;<%= success %></div>
+      <% } %>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="flash-alert error">✕ &nbsp;<%= error %></div>
+      <% } %>
+
+      <!-- Profile Hero Card -->
+      <div class="p-card">
+        <div class="p-card-head">
+          <span class="p-card-title">My Profile</span>
+          <button onclick="openEditModal()" class="btn-primary" style="font-size:12px;padding:8px 18px;">Edit Profile</button>
+        </div>
+        <div class="profile-hero">
+          <div class="profile-big-img">
+            <% if (user.profileImage) { %>
+              <img src="<%= user.profileImage %>?v=<%= Date.now() %>" alt="<%= user.firstname %>" />
+            <% } else { %>
+              <div class="profile-big-init"><%= (user.firstname || 'U')[0].toUpperCase() %></div>
+            <% } %>
+          </div>
+          <div class="profile-hero-info">
+            <h2><%= user.firstname %> <%= user.lastname %></h2>
+            <p><%= user.email %></p>
+            <div class="hero-tags">
+              <% if (user.isGoogleUser) { %>
+                <span class="hero-tag google">Google Account</span>
+              <% } %>
+              <% if (user.isVerified) { %>
+                <span class="hero-tag verified">Verified</span>
+              <% } %>
+              <span class="hero-tag member">Member</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">First Name</div>
+            <div class="info-value" id="display-firstname"><%= user.firstname || '—' %></div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Last Name</div>
+            <div class="info-value" id="display-lastname"><%= user.lastname || '—' %></div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Email Address</div>
+            <div class="info-value"><%= user.email %></div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Phone Number</div>
+            <div class="info-value <%= !user.phone ? 'empty' : '' %>" id="display-phone">
+              <%= user.phone || 'Not added' %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Card -->
+      <div class="p-card">
+        <div class="p-card-head">
+          <span class="p-card-title">Saved Addresses</span>
+          <button onclick="openAddressModal()" class="btn-primary" style="font-size:12px;padding:8px 18px;">+ Add Address</button>
+        </div>
+        <div class="p-card-body">
+          <% if (addresses && addresses.length > 0) { %>
+            <div class="addr-grid">
+              <% addresses.forEach((addr, i) => { %>
+                <div class="addr-card">
+                  <% if (addr.isDefault) { %><span class="addr-default">Default</span><% } %>
+                  <div class="addr-type"><%= addr.type || 'Home' %></div>
+                  <div class="addr-text">
+                    <%= addr.fullName %><br/>
+                    <%= addr.street %><br/>
+                    <%= addr.city %>, <%= addr.state %> — <%= addr.pincode %><br/>
+                    <%= addr.country %><br/>
+                    <span style="color:var(--muted);font-size:12px;">📞 <%= addr.phone %></span>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:12px;">
+                    <a href="/profile/address/edit/<%= addr._id %>" style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:4px;border:1px solid var(--border);color:var(--muted);text-decoration:none;transition:color 0.2s;">Edit</a>
+                    <button onclick="deleteAddress('<%= addr._id %>')" style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:4px;border:1px solid rgba(229,62,62,0.3);color:var(--red);background:none;cursor:pointer;font-family:inherit;">Delete</button>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="addr-empty">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;color:var(--muted);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <p>No addresses saved yet.</p>
+              <button onclick="openAddressModal()" class="btn-primary" style="display:inline-block;margin-top:12px;font-size:12px;padding:8px 20px;">Add Your First Address</button>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Referral Card -->
+      <% if (user.referalCode) { %>
+      <div class="p-card">
+        <div class="p-card-head"><span class="p-card-title">Referral Code</span></div>
+        <div class="p-card-body">
+          <div class="referral-box">
+            <div>
+              <div class="referral-label">Your Referral Code</div>
+              <div class="referral-code"><%= user.referalCode %></div>
+            </div>
+            <button onclick="copyReferral('<%= user.referalCode %>')" class="btn-ghost" style="font-size:12px;padding:8px 18px;">Copy Code</button>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+    </main>
+  </div>
+</div>
+
+
+<!-- ===== EDIT PROFILE MODAL ===== -->
+<div class="modal-overlay" id="editProfileModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Edit Profile</span>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <form id="editProfileForm">
+      <div class="modal-body">
+
+        <!-- Avatar upload -->
+        <div class="ep-avatar-row">
+          <div class="ep-avatar-wrap" onclick="document.getElementById('avatarInput').click()">
+            <% if (user.profileImage) { %>
+              <img src="<%= user.profileImage %>?v=<%= Date.now() %>" class="ep-avatar-img" id="epAvatarPreview" />
+            <% } else { %>
+              <div class="ep-avatar-init" id="epAvatarInit"><%= (user.firstname || 'U')[0].toUpperCase() %></div>
+            <% } %>
+            <div class="ep-avatar-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+          </div>
+          <div class="ep-avatar-info">
+            <p>Profile Photo</p>
+            <span>JPG or PNG, max 2MB</span><br/>
+            <button type="button" class="ep-upload-btn" onclick="document.getElementById('avatarInput').click()">Change Photo</button>
+            <input type="file" id="avatarInput" name="profileImage" accept="image/*" style="display:none" onchange="previewAvatar(event)" />
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div class="f-row">
+          <div>
+            <label class="f-label">First Name</label>
+            <input class="f-input" type="text" id="ep-firstname" name="firstname" value="<%= user.firstname || '' %>" placeholder="First name" required />
+          </div>
+          <div>
+            <label class="f-label">Last Name</label>
+            <input class="f-input" type="text" id="ep-lastname" name="lastname" value="<%= user.lastname || '' %>" placeholder="Last name" />
+          </div>
+        </div>
+
+        <!-- Email -->
+<div class="f-full">
+  <label class="f-label">Email Address</label>
+  <% if (user.isGoogleUser) { %>
+    <input class="f-input" type="email" value="<%= user.email %>" disabled />
+    <p class="f-hint">Email cannot be changed for Google accounts.</p>
+  <% } else { %>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input class="f-input" type="email" id="ep-current-email" value="<%= user.email %>" disabled style="flex:1;" />
+      <button type="button" class="ep-upload-btn" id="epChangeEmailBtn" onclick="showEmailOtpSection()">Change</button>
+    </div>
+
+    <!-- OTP Section (hidden by default) -->
+    <div id="emailOtpSection" style="display:none;margin-top:12px;">
+      <label class="f-label">New Email Address</label>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input class="f-input" type="email" id="ep-new-email" placeholder="Enter new email" style="flex:1;" />
+        <button type="button" class="ep-upload-btn" id="epSendOtpBtn" onclick="sendEmailOtp()">Send OTP</button>
+      </div>
+
+      <div id="epOtpInputRow" style="display:none;">
+        <label class="f-label">Enter OTP</label>
+        <div style="display:flex;gap:8px;">
+          <input class="f-input" type="text" id="ep-otp" placeholder="6-digit OTP" maxlength="6" style="flex:1;" />
+          <button type="button" class="ep-upload-btn" id="epVerifyOtpBtn" onclick="verifyEmailOtp()">Verify</button>
+        </div>
+        <p class="f-hint" id="epOtpHint"></p>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+        <!-- Phone -->
+        <div class="f-full">
+          <label class="f-label">Phone Number</label>
+          <input class="f-input" type="tel" id="ep-phone" name="phone" value="<%= user.phone || '' %>" placeholder="eg: 9778171302" />
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" style="font-size:12px;padding:8px 18px;" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" id="epSaveBtn" class="btn-primary" style="font-size:12px;padding:8px 18px;">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ===== ADD ADDRESS MODAL ===== -->
+<div class="modal-overlay" id="addAddressModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Add New Address</span>
+      <button class="modal-close" onclick="closeAddressModal()">✕</button>
+    </div>
+    <form id="addAddressForm">
+      <div class="modal-body">
+
+        <!-- Full address -->
+        <div class="f-full">
+          <label class="f-label">Address</label>
+          <input class="f-input" type="text" name="street" placeholder="House Name, House Number, Locality" required />
+        </div>
+
+        <!-- Name + Phone -->
+        <div class="f-row">
+          <div>
+            <label class="f-label">Full Name</label>
+            <input class="f-input" type="text" name="fullName" placeholder="Receiver's full name" required />
+          </div>
+          <div>
+            <label class="f-label">Phone</label>
+            <input class="f-input" type="tel" name="phone" placeholder="eg: 9778171302" required />
+          </div>
+        </div>
+
+        <!-- City + State -->
+        <div class="f-row">
+          <div>
+            <label class="f-label">District / Town</label>
+            <input class="f-input" type="text" name="city" placeholder="eg: Ernakulam" required />
+          </div>
+          <div>
+            <label class="f-label">State</label>
+            <input class="f-input" type="text" name="state" placeholder="eg: Kerala" required />
+          </div>
+        </div>
+
+        <!-- Landmark + Pincode -->
+        <div class="f-row">
+          <div>
+            <label class="f-label">Landmark <span style="text-transform:none;font-weight:400;">(optional)</span></label>
+            <input class="f-input" type="text" name="landmark" placeholder="eg: Near hospital" />
+          </div>
+          <div>
+            <label class="f-label">Pin Code</label>
+            <input class="f-input" type="text" name="pincode" placeholder="eg: 682304" required />
+          </div>
+        </div>
+
+        <!-- Address type -->
+        <div class="f-radio-row">
+          <span class="f-radio-label">Address Type</span>
+          <label class="f-radio-opt"><input type="radio" name="type" value="Home" checked /><span>Home</span></label>
+          <label class="f-radio-opt"><input type="radio" name="type" value="Work" /><span>Work</span></label>
+        </div>
+
+        <!-- Default checkbox -->
+        <label class="f-check-row">
+          <input type="checkbox" name="isDefault" value="true" />
+          <span>Make this my default address</span>
+        </label>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" style="font-size:12px;padding:8px 18px;" onclick="closeAddressModal()">Cancel</button>
+        <button type="submit" id="addrSaveBtn" class="btn-primary" style="font-size:12px;padding:8px 18px;">Add Address</button>
+      </div>
+
+<!-- <div class="modal-footer" style="justify-content:space-between;">
+  <a href="/forgot-password" style="font-size:12px;color:var(--muted);text-decoration:none;padding:8px 4px;transition:color 0.2s;" onmouseover="this.style.color='var(--off-white)'" onmouseout="this.style.color='var(--muted)'">Forgot password?</a>
+  <div style="display:flex;gap:10px;">
+    <button type="button" class="btn-ghost" style="font-size:12px;padding:8px 18px;" onclick="closePasswordModal()">Cancel</button>
+    <button type="submit" id="cpSaveBtn" class="btn-primary" style="font-size:12px;padding:8px 18px;" <%= user.isGoogleUser ? 'disabled' : '' %>>Update Password</button>
+  </div> -->
+</div>
+
+
+    </form>
+  </div>
+</div>
+
+
+<script>
+/* ================================================
+   HELPER — generic modal open/close
+   ================================================ */
+function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+// Close any modal when clicking dark overlay
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeModal(this.id);
+  });
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal('editProfileModal');
+    closeModal('addAddressModal');
+  }
+});
+
+/* ================================================
+   EDIT PROFILE MODAL
+   ================================================ */
+function openEditModal()  { openModal('editProfileModal'); }
+function closeEditModal() { closeModal('editProfileModal'); }
+
+// Live avatar preview
+function previewAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const init = document.getElementById('epAvatarInit');
+    if (init) init.remove();
+    let img = document.getElementById('epAvatarPreview');
+    if (!img) {
+      img = document.createElement('img');
+      img.id = 'epAvatarPreview';
+      img.className = 'ep-avatar-img';
+      document.querySelector('.ep-avatar-wrap').prepend(img);
+    }
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Submit via fetch
+document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('epSaveBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('firstname', document.getElementById('ep-firstname').value.trim());
+    formData.append('lastname',  document.getElementById('ep-lastname').value.trim());
+    formData.append('phone',     document.getElementById('ep-phone').value.trim());
+    const avatarFile = document.getElementById('avatarInput').files[0];
+    if (avatarFile) formData.append('profileImage', avatarFile);
+
+    const res  = await fetch('/profile/update', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.success) {
+      closeEditModal();
+
+      // Live DOM update — no reload needed
+      const fn = document.getElementById('ep-firstname').value.trim();
+      const ln = document.getElementById('ep-lastname').value.trim();
+      const ph = document.getElementById('ep-phone').value.trim();
+
+      document.getElementById('display-firstname').textContent = fn || '—';
+      document.getElementById('display-lastname').textContent  = ln || '—';
+
+      const phoneEl = document.getElementById('display-phone');
+      phoneEl.textContent = ph || 'Not added';
+      phoneEl.classList.toggle('empty', !ph);
+
+      document.querySelector('.profile-hero-info h2').textContent = (fn + ' ' + ln).trim();
+      document.querySelector('.p-sidebar-name').textContent       = (fn + ' ' + ln).trim();
+
+      if (data.imageUrl) {
+        const src = data.imageUrl + '?v=' + Date.now();
+        const heroImg = document.querySelector('.profile-big-img img');
+        const sideImg = document.querySelector('.p-avatar');
+        if (heroImg) heroImg.src = src;
+        if (sideImg) sideImg.src = src;
+      }
+
+      Swal.fire({ icon: 'success', title: 'Saved!', text: data.message, timer: 1600, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    }
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Network error', text: 'Could not reach the server.', background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+  } finally {
+    btn.textContent = 'Save Changes';
+    btn.disabled = false;
+  }
+});
+
+/* ================================================
+   ADD ADDRESS MODAL
+   ================================================ */
+function openAddressModal()  { openModal('addAddressModal'); }
+function closeAddressModal() { closeModal('addAddressModal'); }
+
+document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('addrSaveBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const formData = new FormData(this);
+    const body = Object.fromEntries(formData.entries());
+
+    const res  = await fetch('/profile/address/add', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      closeAddressModal();
+      Swal.fire({
+        icon: 'success', title: 'Address Added!',
+        text: data.message, timer: 1400,
+        showConfirmButton: false,
+        background: '#111d3c', color: '#e8eaf0'
+      }).then(() => location.reload());
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    }
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Network error', text: 'Could not reach the server.', background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+  } finally {
+    btn.textContent = 'Add Address';
+    btn.disabled = false;
+  }
+});
+
+/* ================================================
+   DELETE ADDRESS
+   ================================================ */
+function deleteAddress(id) {
+  Swal.fire({
+    title: 'Delete Address?',
+    text: 'This cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e53e3e',
+    cancelButtonColor: '#2563eb',
+    confirmButtonText: 'Yes, delete',
+    background: '#111d3c',
+    color: '#e8eaf0'
+  }).then(async function(result) {
+    if (result.isConfirmed) {
+      const res  = await fetch('/profile/address/delete/' + id, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        Swal.fire({ icon: 'success', title: 'Deleted!', timer: 1200, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+        setTimeout(() => location.reload(), 1200);
+      }
+    }
+  });
+}
+
+/* ================================================
+   REFERRAL COPY
+   ================================================ */
+function copyReferral(code) {
+  navigator.clipboard.writeText(code).then(function() {
+    Swal.fire({ icon: 'success', title: 'Copied!', text: code, timer: 1500, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+  });
+}
+
+
+
+/* ================================================
+   EMAIL CHANGE VIA OTP
+   ================================================ */
+function showEmailOtpSection() {
+  document.getElementById('emailOtpSection').style.display = 'block';
+  document.getElementById('epChangeEmailBtn').style.display = 'none';
+}
+
+async function sendEmailOtp() {
+  const newEmail = document.getElementById('ep-new-email').value.trim();
+  if (!newEmail) return Swal.fire({ icon: 'warning', title: 'Enter new email', background: '#111d3c', color: '#e8eaf0' });
+
+  const btn = document.getElementById('epSendOtpBtn');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch('/profile/email-otp', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ newEmail })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('epOtpInputRow').style.display = 'block';
+      document.getElementById('epOtpHint').textContent = 'OTP sent to ' + newEmail;
+      btn.textContent = 'Resend OTP';
+      btn.disabled = false;
+    } else {
+      Swal.fire({ icon: 'error', title: 'Failed', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+      btn.textContent = 'Send OTP';
+      btn.disabled = false;
+    }
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Network error', background: '#111d3c', color: '#e8eaf0' });
+    btn.textContent = 'Send OTP';
+    btn.disabled = false;
+  }
+}
+
+async function verifyEmailOtp() {
+  const newEmail = document.getElementById('ep-new-email').value.trim();
+  const otp      = document.getElementById('ep-otp').value.trim();
+
+  if (!otp) return Swal.fire({ icon: 'warning', title: 'Enter OTP', background: '#111d3c', color: '#e8eaf0' });
+
+  const btn = document.getElementById('epVerifyOtpBtn');
+  btn.textContent = 'Verifying…';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch('/profile/verify-email-otp', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ newEmail, otp })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // Update UI
+      document.getElementById('ep-current-email').value = newEmail;
+      document.querySelector('.p-sidebar-email').textContent = newEmail;
+      document.querySelector('.profile-hero-info p').textContent = newEmail;
+      document.getElementById('emailOtpSection').style.display = 'none';
+      document.getElementById('epChangeEmailBtn').style.display = 'inline-block';
+      document.getElementById('ep-otp').value = '';
+
+      Swal.fire({ icon: 'success', title: 'Email Updated!', timer: 1600, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Invalid OTP', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+      btn.textContent = 'Verify';
+      btn.disabled = false;
+    }
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Network error', background: '#111d3c', color: '#e8eaf0' });
+    btn.textContent = 'Verify';
+    btn.disabled = false;
+  }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<%- include("../partials/user/footer") %>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #060d1a;
+  --navy-mid:   #0b1527;
+  --navy-card:  #0f1c35;
+  --border:     #1e2d4a;
+  --radius:     14px;
+  --white:      #e8edf8;
+  --muted:      #6b7fa3;
+  --blue-glow:  #3b82f6;
+  --blue-accent:#2563eb;
+  --blue-deep:  #1a4fd8;
+  --error:      #ef4444;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(37,99,235,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(16,185,129,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.lp-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  position: relative;
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lp-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent);
+}
+
+.lp-head {
+  padding: 28px 32px 22px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #0d1b38, #0b1527);
+}
+
+.lp-icon {
+  width: 44px; height: 44px;
+  background: rgba(37,99,235,0.12);
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+
+.lp-head h1 {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-bottom: 5px;
+}
+
+.lp-head p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.lp-body { padding: 28px 32px 32px; }
+
+.lp-alert {
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #fca5a5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 18px;
+  display: none;
+}
+
+.lp-alert.show { display: block; }
+
+.lp-field { margin-bottom: 16px; }
+
+.lp-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.lp-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lp-input-wrap input {
+  width: 100%;
+  padding: 12px 44px 12px 14px;
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.lp-input-wrap input:focus {
+  border-color: rgba(37,99,235,0.55);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+}
+
+.lp-input-wrap input.err { border-color: rgba(239,68,68,0.5); }
+
+.lp-eye {
+  position: absolute; right: 12px;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 2px;
+  display: flex; align-items: center;
+  transition: color 0.2s;
+}
+.lp-eye:hover { color: var(--white); }
+
+.lp-error {
+  font-size: 12px;
+  color: var(--error);
+  margin-top: 5px;
+  min-height: 16px;
+  display: block;
+}
+
+.lp-forgot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+  margin-bottom: 18px;
+}
+
+.lp-forgot a {
+  font-size: 12px;
+  color: var(--blue-glow);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.lp-forgot a:hover { color: #93c5fd; }
+
+.lp-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--blue-accent);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.lp-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
+}
+
+.lp-btn:hover:not(:disabled) { background: var(--blue-deep); transform: translateY(-1px); }
+.lp-btn:active:not(:disabled) { transform: translateY(0); }
+.lp-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.lp-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.lp-divider::before, .lp-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.lp-divider span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.lp-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: inherit;
+}
+
+.lp-google:hover { border-color: #2a4a8a; background: #0f1c35; }
+.lp-google img { width: 18px; height: 18px; }
+
+.lp-signup {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.lp-signup a {
+  color: var(--blue-glow);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.lp-signup a:hover { color: #93c5fd; }
+
+@media(max-width:480px){
+  .lp-head, .lp-body { padding-left: 20px; padding-right: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="lp-card">
+
+  <div class="lp-head">
+    <div class="lp-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+    </div>
+    <h1>Welcome back</h1>
+    <p>Sign in to your account to continue</p>
+  </div>
+
+  <div class="lp-body">
+
+   <div class="lp-alert <%= locals.message ? 'show' : '' %>">
+  <%= locals.message || '' %>
+</div>
+
+    <div class="lp-field">
+      <label for="lpEmail">Email address</label>
+      <div class="lp-input-wrap">
+        <input type="email" id="lpEmail" name="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <span class="lp-error" id="lpEmailErr"></span>
+    </div>
+
+    <div class="lp-field">
+      <label for="lpPassword">Password</label>
+      <div class="lp-input-wrap">
+        <input type="password" id="lpPassword" name="password" placeholder="Enter your password" autocomplete="current-password" />
+        <button class="lp-eye" type="button" id="lpEye" aria-label="Toggle password">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <span class="lp-error" id="lpPassErr"></span>
+    </div>
+
+    <div class="lp-forgot">
+      <a href="/forgot-password">Forgot password?</a>
+    </div>
+
+    <button class="lp-btn" id="lpSubmitBtn" type="button">Sign in</button>
+
+    <div class="lp-divider"><span>or continue with</span></div>
+
+    <a href="/auth/google" class="lp-google">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" />
+      Continue with Google
+    </a>
+
+    <div class="lp-signup">
+      Don't have an account? <a href="/signup">Sign up</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+const emailEl   = document.getElementById('lpEmail');
+const passEl    = document.getElementById('lpPassword');
+const submitBtn = document.getElementById('lpSubmitBtn');
+const alertBox  = document.querySelector('.lp-alert');
+const emailErr  = document.getElementById('lpEmailErr');
+const passErr   = document.getElementById('lpPassErr');
+
+document.getElementById('lpEye').addEventListener('click', () => {
+  passEl.type = passEl.type === 'password' ? 'text' : 'password';
+});
+
+function showAlert(msg) {
+  alertBox.textContent = msg;
+  alertBox.classList.add('show');
+  setTimeout(() => alertBox.classList.remove('show'), 4000);
+}
+
+function validate() {
+  let valid = true;
+  emailErr.textContent = '';
+  passErr.textContent  = '';
+  emailEl.classList.remove('err');
+  passEl.classList.remove('err');
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+  if (!emailEl.value.trim()) {
+    emailErr.textContent = 'Email is required';
+    emailEl.classList.add('err');
+    valid = false;
+  } else if (!emailPattern.test(emailEl.value.trim())) {
+    emailErr.textContent = 'Enter a valid email';
+    emailEl.classList.add('err');
+    valid = false;
+  }
+
+  if (!passEl.value.trim()) {
+    passErr.textContent = 'Password is required';
+    passEl.classList.add('err');
+    valid = false;
+  } else if (passEl.value.trim().length < 6) {
+    passErr.textContent = 'Minimum 6 characters required';
+    passEl.classList.add('err');
+    valid = false;
+  }
+
+  return valid;
+}
+
+submitBtn.addEventListener('click', async () => {
+  if (!validate()) return;
+
+  submitBtn.textContent = 'Signing in…';
+  submitBtn.disabled = true;
+
+  try {
+    const res  = await fetch('/signIn', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({
+        email   : emailEl.value.trim(),
+        password: passEl.value.trim()
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      submitBtn.textContent = 'Success!';
+      setTimeout(() => {
+        window.location.replace(data.redirectUrl || '/home');
+      }, 900);
+    } else {
+      showAlert(data.message || 'Login failed. Please try again.');
+      submitBtn.textContent = 'Sign in';
+      submitBtn.disabled = false;
+    }
+  } catch {
+    showAlert('Could not reach server. Please try again.');
+    submitBtn.textContent = 'Sign in';
+    submitBtn.disabled = false;
+  }
+});
+
+[emailEl, passEl].forEach(el => {
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitBtn.click();
+  });
+});
+</script>
+
+</body>
+</html>

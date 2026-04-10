@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify OTP</title>
+<style>
+:root {
+  --navy: #0b132b;
+  --navy-mid: #111d3c;
+  --navy-card: #121c4f;
+  --border: #2a2f4a;
+  --radius: 12px;
+  --white: #e8eaf0;
+  --muted: #9ca3af;
+  --blue-glow: #3b82f6;
+  --blue-accent: #2563eb;
+  --off-white: #f1f5f9;
+  --font-display: 'Segoe UI', sans-serif;
+  --font-body: 'Arial', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--navy);
+  color: var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.vfo-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+}
+
+.vfo-card-head {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #0e1c40, #111d3c);
+}
+
+.vfo-card-head h1 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.vfo-card-head p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.vfo-card-head p span {
+  color: var(--blue-glow);
+  font-weight: 500;
+}
+
+.vfo-card-body {
+  padding: 28px 32px;
+}
+
+.otp-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.otp-row input {
+  width: 48px;
+  height: 52px;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--white);
+  font-family: var(--font-display);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.otp-row input:focus { border-color: rgba(37,99,235,0.6); }
+.otp-row input.filled { border-color: rgba(37,99,235,0.4); background: rgba(37,99,235,0.07); }
+
+.vfo-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--blue-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.vfo-btn:hover { background: #1a4fd8; }
+.vfo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.vfo-timer {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.vfo-resend-btn {
+  background: none;
+  border: none;
+  color: var(--blue-glow);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 8px;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.vfo-resend-btn:disabled { color: var(--muted); cursor: not-allowed; }
+
+.vfo-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.vfo-back:hover { color: var(--off-white); }
+
+@media(max-width:480px){
+  .vfo-card { padding: 20px; }
+  .otp-row input { width: 40px; height: 48px; font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="vfo-card">
+  <div class="vfo-card-head">
+    <h1>Verify OTP</h1>
+    <p>Enter the 6-digit code sent to <span><%= email %></span></p>
+  </div>
+  <div class="vfo-card-body">
+
+    <input type="hidden" id="vfo-email" value="<%= email %>" />
+
+    <div class="otp-row">
+      <input maxlength="1" inputmode="numeric" />
+      <input maxlength="1" inputmode="numeric" />
+      <input maxlength="1" inputmode="numeric" />
+      <input maxlength="1" inputmode="numeric" />
+      <input maxlength="1" inputmode="numeric" />
+      <input maxlength="1" inputmode="numeric" />
+    </div>
+
+    <button class="vfo-btn" id="vfoVerifyBtn" disabled>Verify OTP</button>
+
+    <div class="vfo-timer">
+      Resend OTP in <span id="vfo-countdown">30</span>s
+    </div>
+    <button class="vfo-resend-btn" id="vfoResendBtn" disabled>Resend OTP</button>
+
+    <a href="/forgot-password" class="vfo-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back
+    </a>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+const inputs      = document.querySelectorAll('.otp-row input');
+const verifyBtn   = document.getElementById('vfoVerifyBtn');
+const resendBtn   = document.getElementById('vfoResendBtn');
+const countdownEl = document.getElementById('vfo-countdown');
+const emailVal    = document.getElementById('vfo-email').value;
+
+let time  = 30;
+let timer = null;
+
+// ── Input behaviour ──
+inputs.forEach((input, i) => {
+  input.addEventListener('input', () => {
+    input.value = input.value.replace(/[^0-9]/g, '');
+    input.classList.toggle('filled', !!input.value);
+    if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
+    checkReady();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !input.value && i > 0) {
+      inputs[i - 1].focus();
+      inputs[i - 1].classList.remove('filled');
+    }
+  });
+});
+
+inputs[0].addEventListener('paste', (e) => {
+  const data = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+  inputs.forEach((inp, i) => { inp.value = data[i] || ''; inp.classList.toggle('filled', !!inp.value); });
+  checkReady();
+  e.preventDefault();
+});
+
+function getOtp() { return [...inputs].map(i => i.value).join(''); }
+function checkReady() { verifyBtn.disabled = getOtp().length !== 6; }
+
+// ── Verify OTP ──
+verifyBtn.addEventListener('click', async () => {
+  const otp = getOtp();
+  verifyBtn.textContent = 'Verifying…';
+  verifyBtn.disabled = true;
+
+  try {
+    const res  = await fetch('/verify-forgot-otp', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ otp, email: emailVal })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'OTP Verified!',
+        timer: 1400,
+        showConfirmButton: false,
+        background: '#111d3c',
+        color: '#e8eaf0'
+      }).then(() => { window.location.href = data.redirectUrl; });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Invalid OTP', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+      verifyBtn.textContent = 'Verify OTP';
+      verifyBtn.disabled = false;
+    }
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not reach server.', background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    verifyBtn.textContent = 'Verify OTP';
+    verifyBtn.disabled = false;
+  }
+});
+
+// ── Timer ──
+function startTimer() {
+  resendBtn.disabled = true;
+  timer = setInterval(() => {
+    time--;
+    countdownEl.textContent = time;
+    if (time <= 0) { clearInterval(timer); resendBtn.disabled = false; countdownEl.textContent = '0'; }
+  }, 1000);
+}
+
+// ── Resend OTP ──
+resendBtn.addEventListener('click', async () => {
+  try {
+    const res  = await fetch('/resend-forgot-otp', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ email: emailVal })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({ icon: 'success', title: 'OTP Resent!', timer: 1400, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+      inputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
+      inputs[0].focus();
+      time = 30;
+      clearInterval(timer);
+      startTimer();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Failed', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    }
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Network Error', background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+  }
+});
+
+startTimer();
+</script>
+
+</body>
+</html>

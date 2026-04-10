@@ -1,0 +1,343 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #060d18;
+      --bg-secondary: #0b1628;
+      --bg-input: #0d1b2e;
+      --border-color: rgba(255, 255, 255, 0.12);
+      --border-focus: rgba(59, 130, 246, 0.6);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.45);
+      --text-muted: rgba(255, 255, 255, 0.3);
+      --btn-bg: #2563eb;
+      --btn-hover: #1d4ed8;
+      --btn-active: #1e40af;
+      --accent: #3b82f6;
+      --radius-input: 12px;
+      --radius-btn: 12px;
+      --shadow-glow: 0 0 40px rgba(37, 99, 235, 0.08);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Sora', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    /* Subtle noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .login-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Title */
+    .login-title {
+      font-size: clamp(1.6rem, 5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-align: center;
+      color: var(--text-primary);
+      margin-bottom: 2.25rem;
+    }
+
+    /* Form */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Field group */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .field-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    /* Toggle visibility button */
+    .toggle-visibility {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 400;
+      padding: 0;
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+
+    .toggle-visibility:hover {
+      color: var(--text-primary);
+    }
+
+    .toggle-visibility svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    /* Inputs */
+    .input-field {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-input);
+      padding: 0.875rem 1rem;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.2s ease;
+      -webkit-appearance: none;
+    }
+
+    .input-field::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-field:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+      background: #0f1f36;
+    }
+
+    /* Forgot password */
+    .forgot-link {
+      align-self: flex-end;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-top: -0.35rem;
+      transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+      color: var(--text-primary);
+    }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      background: var(--btn-bg);
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 0.9375rem 1rem;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      margin-top: 0.75rem;
+      transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .btn-login:hover {
+      background: var(--btn-hover);
+      box-shadow: 0 4px 24px rgba(37, 99, 235, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+      background: var(--btn-active);
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* Error message (shown server-side via EJS) */
+    <% if (typeof error !== 'undefined' && error) { %>
+    .error-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 0.8125rem;
+      color: #f87171;
+      margin-bottom: 0.25rem;
+    }
+    <% } %>
+
+    /* Responsive tweaks */
+    @media (max-width: 480px) {
+      .login-title {
+        margin-bottom: 1.75rem;
+      }
+
+      .input-field {
+        padding: 0.8125rem 0.9rem;
+        font-size: 1rem; /* prevent iOS zoom */
+      }
+
+      .btn-login {
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <h1 class="login-title">Admin Login</h1>
+
+    <%# Display server-side error if present %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="error-banner">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form class="login-form" action="/admin/login" method="POST" novalidate>
+
+      <%# CSRF token — include if your framework provides one %>
+      <% if (typeof csrfToken !== 'undefined') { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <% } %>
+
+      <!-- Email -->
+      <div class="field-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          class="input-field"
+          type="email"
+          name="email"
+          placeholder=""
+          autocomplete="email"
+          required
+          value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <div class="field-header">
+          <label for="password">Password</label>
+          <button type="button" class="toggle-visibility" id="toggleBtn" aria-label="Toggle password visibility">
+            <!-- Eye-off icon (default: password hidden) -->
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C7 19 2.73 15.11 1 12c.87-1.76 2.23-3.32 3.94-4.5"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c5 0 9.27 3.89 11 7a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+            <span id="toggleLabel">Hide</span>
+          </button>
+        </div>
+        <input
+          id="password"
+          class="input-field"
+          type="password"
+          name="password"
+          placeholder=""
+          autocomplete="current-password"
+          required
+        />
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login">Log in</button>
+
+    </form>
+  </div>
+
+  <script>
+    const toggleBtn   = document.getElementById('toggleBtn');
+    const passwordInput = document.getElementById('password');
+    const toggleLabel = document.getElementById('toggleLabel');
+    const eyeIcon     = document.getElementById('eyeIcon');
+
+    const eyeOnPath  = `<path d="M1 12C2.73 8.89 7 5 12 5s9.27 3.89 11 7c-1.73 3.11-6 7-11 7S2.73 15.11 1 12z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeOffPath = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C7 19 2.73 15.11 1 12c.87-1.76 2.23-3.32 3.94-4.5"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c5 0 9.27 3.89 11 7a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+    let visible = false;
+
+    toggleBtn.addEventListener('click', () => {
+      visible = !visible;
+      passwordInput.type = visible ? 'text' : 'password';
+      toggleLabel.textContent = visible ? 'Hide' : 'Show';
+      eyeIcon.innerHTML = visible ? eyeOnPath : eyeOffPath;
+    });
+  </script>
+
+</body>
+</html>

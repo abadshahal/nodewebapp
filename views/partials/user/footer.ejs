@@ -1,0 +1,329 @@
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-col">
+        <h4 class="footer-heading">Exclusive</h4>
+        <p class="footer-sub">Subscribe</p>
+        <p class="footer-desc">Get 20% off your first order</p>
+        <form class="subscribe-form" onsubmit="return false;">
+          <input type="email" placeholder="Enter your email" />
+          <button type="submit" aria-label="Subscribe">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Support</h4>
+        <address class="footer-address">
+          9th Floor, Orion Business Park, Thane West, Mumbai,<br />
+          Maharashtra, 400601<br /><br />
+          <a href="mailto:velorian@gmail.com">velorian@gmail.com</a><br />
+          <a href="tel:+912246735148">+91 22 4673 5148</a>
+        </address>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Account</h4>
+        <ul class="footer-links">
+          <li><a href="#">My Account</a></li>
+          <li><a href="#">Login / Register</a></li>
+          <li><a href="#">Cart</a></li>
+          <li><a href="#">Wishlist</a></li>
+          <li><a href="#">Shop</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Quick Link</h4>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms Of Use</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Download App</h4>
+        <p class="footer-desc">Save $3 with App New User Only</p>
+        <div class="app-badges">
+          <a href="#" class="app-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.3.07 2.19.74 2.96.8 1.12-.23 2.2-.91 3.4-.82 1.44.12 2.52.72 3.22 1.87-2.95 1.77-2.25 5.67.42 6.74-.53 1.46-1.23 2.91-2 4.29M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            App Store
+          </a>
+          <a href="#" class="app-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83 1-1.3 1.7-.8l13.4 8.5c.64.4.64 1.4 0 1.8L4.7 21.3c-.7.5-1.7.03-1.7-.8z"/></svg>
+            Google Play
+          </a>
+        </div>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© Copyright Velorian 2025. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- CART TOAST -->
+  <div class="cart-toast" id="cartToast">Added to cart ✓</div>
+
+
+
+
+
+
+
+
+
+
+  <script>
+/* =============================================
+   VELORIAN — MAIN JAVASCRIPT
+   ============================================= */
+
+(function () {
+  "use strict";
+
+  /* ---------- NAVBAR SCROLL EFFECT ---------- */
+  const navbar = document.getElementById("navbar");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 40) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  });
+
+  /* ---------- HAMBURGER / MOBILE MENU ---------- */
+  const hamburger = document.getElementById("hamburger");
+  const mobileMenu = document.getElementById("mobileMenu");
+  let menuOpen = false;
+
+  hamburger.addEventListener("click", toggleMenu);
+
+  mobileMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (menuOpen && !mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  function toggleMenu() {
+    menuOpen ? closeMenu() : openMenu();
+  }
+
+  function openMenu() {
+    menuOpen = true;
+    hamburger.classList.add("open");
+    mobileMenu.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMenu() {
+    menuOpen = false;
+    hamburger.classList.remove("open");
+    mobileMenu.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  /* ---------- HERO SLIDER ---------- */
+  const slides = document.querySelectorAll(".hero-slide");
+  const dots   = document.querySelectorAll(".dot");
+  let current  = 0;
+  let autoplay;
+
+  function showSlide(index) {
+    slides.forEach((s, i) => {
+      s.classList.toggle("active", i === index);
+    });
+    dots.forEach((d, i) => {
+      d.classList.toggle("active", i === index);
+    });
+    current = index;
+  }
+
+  document.getElementById("heroNext").addEventListener("click", () => {
+    const next = (current + 1) % slides.length;
+    showSlide(next);
+    resetAutoplay();
+  });
+
+  document.getElementById("heroPrev").addEventListener("click", () => {
+    const prev = (current - 1 + slides.length) % slides.length;
+    showSlide(prev);
+    resetAutoplay();
+  });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      showSlide(parseInt(dot.dataset.index));
+      resetAutoplay();
+    });
+  });
+
+  function startAutoplay() {
+    autoplay = setInterval(() => {
+      showSlide((current + 1) % slides.length);
+    }, 5000);
+  }
+
+  function resetAutoplay() {
+    clearInterval(autoplay);
+    startAutoplay();
+  }
+
+  startAutoplay();
+
+  /* ---------- TOUCH SWIPE SUPPORT ---------- */
+  const heroSection = document.querySelector(".hero");
+  let touchStartX = 0;
+
+  heroSection.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  heroSection.addEventListener("touchend", (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        showSlide((current + 1) % slides.length);
+      } else {
+        showSlide((current - 1 + slides.length) % slides.length);
+      }
+      resetAutoplay();
+    }
+  }, { passive: true });
+
+  /* ---------- ADD TO CART ---------- */
+  const cartToast  = document.getElementById("cartToast");
+  let toastTimeout;
+
+  document.querySelectorAll(".add-cart-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      // Animate button
+      btn.textContent = "✓ Added!";
+      btn.style.background = "#16a34a";
+      setTimeout(() => {
+        btn.textContent = "Add to Cart";
+        btn.style.background = "";
+      }, 1800);
+
+      // Show toast
+      clearTimeout(toastTimeout);
+      cartToast.classList.add("show");
+      toastTimeout = setTimeout(() => {
+        cartToast.classList.remove("show");
+      }, 2500);
+    });
+  });
+
+  /* ---------- ACTIVE NAV LINK ON SCROLL ---------- */
+  const sections = document.querySelectorAll("section[id]");
+  const navLinks = document.querySelectorAll(".nav-links a");
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${entry.target.id}`) {
+              link.classList.add("active");
+            }
+          });
+        }
+      });
+    },
+    { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+  );
+
+  sections.forEach((s) => sectionObserver.observe(s));
+
+  /* ---------- SCROLL REVEAL (cards fade in) ---------- */
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity  = "1";
+          entry.target.style.transform = "translateY(0)";
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll(".product-card").forEach((card, i) => {
+    card.style.opacity   = "0";
+    card.style.transform = "translateY(30px)";
+    card.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s, box-shadow 0.3s ease, border-color 0.3s ease`;
+    revealObserver.observe(card);
+  });
+
+  /* ---------- SUBSCRIBE FORM ---------- */
+  document.querySelectorAll(".subscribe-form").forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = form.querySelector("input[type='email']");
+      if (input.value.trim()) {
+        input.value = "";
+        input.placeholder = "Thanks for subscribing! ✓";
+        input.style.color = "#4ade80";
+        setTimeout(() => {
+          input.placeholder = "Enter your email";
+          input.style.color = "";
+        }, 3000);
+      }
+    });
+  });
+
+  /* ---------- SMOOTH SCROLL FOR ANCHOR LINKS ---------- */
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", (e) => {
+      const href = anchor.getAttribute("href");
+      if (href === "#") return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        const offset = 70; // navbar height
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+  });
+
+
+
+ /* ---------- PROFILE DROPDOWN ---------- */
+  const profileBtn = document.getElementById('profileBtn');
+  const profileDropdown = document.getElementById('profileDropdown');
+  const profileWrap = document.getElementById('profileDropdownWrap');
+
+  if (profileBtn) {
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = profileDropdown.style.display === 'block';
+      profileDropdown.style.display = isOpen ? 'none' : 'block';
+    });
+    document.addEventListener('click', (e) => {
+      if (profileWrap && !profileWrap.contains(e.target)) {
+        profileDropdown.style.display = 'none';
+      }
+    });
+  }
+
+
+
+})();
+  </script>
+</body>
+</html>

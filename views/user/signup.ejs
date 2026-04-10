@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Signup</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px;
+      background: #111;
+      padding: 25px;
+      border-radius: 12px;
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #000;
+      color: #fff;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+    }
+
+    /* 🔥 BUTTON FIX */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #6c63ff;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .google-btn {
+      background: #fff;
+      color: #000;
+    }
+
+    .google-btn:hover {
+      background: #f1f1f1;
+    }
+
+    .google-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #6c63ff;
+      text-decoration: none;
+    }
+
+     /* 🔴 ALERT FROM BACKEND */
+    .alert{
+      background:#ff4d4d;
+      color:#fff;
+      padding:10px;
+      border-radius:8px;
+      margin-bottom:15px;
+      text-align:center;
+      font-size:14px;
+      animation:fadeIn 0.3s ease;
+    }
+
+    @media (max-width: 500px) {
+      .row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>SIGN UP</h2>
+
+  <form onsubmit="return validateSignup()" method="post" action="/signup">
+
+    <div class="row">
+      <div class="form-group">
+        <input type="text" name="firstname" id="firstName" placeholder="First Name">
+        <div id="firstNameError" class="error"></div>
+      </div>
+
+      <div class="form-group">
+        <input type="text" name="lastname" id="lastName" placeholder="Last Name">
+        <div id="lastNameError" class="error"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input type="email" name="email" id="email" placeholder="Email">
+      <div id="emailError" class="error"></div>
+    </div>
+
+    <div class="form-group">
+      <input type="tel" name="phone" id="mobile" placeholder="Mobile Number">
+      <div id="mobileError" class="error"></div>
+    </div>
+
+    <div class="form-group">
+      <input type="password" name="password" id="password" placeholder="Password">
+      <div id="passwordError" class="error"></div>
+    </div>
+
+    <div class="form-group">
+      <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password">
+      <div id="confirmPasswordError" class="error"></div>
+    </div>
+
+    <div class="form-group">
+      <input type="text" name="referral" id="referral" placeholder="Referral Code (Optional)">
+    </div>
+
+    <button type="submit" class="btn">Sign Up</button>
+     <!-- 🔥 BACKEND MESSAGE -->
+  <% if (typeof message !== "undefined") { %>
+    <div class="alert"><%= message %></div>
+  <% } %>
+
+    <!-- 🔥 FIXED GOOGLE BUTTON -->
+    <a href="/auth/google" class="btn google-btn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" class="google-icon">
+      Continue with Google
+    </a>
+
+    <div class="link">
+      Already have an account? <a href="/signIn">Login</a>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function validateSignup() {
+  let isValid = true;
+
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const mobile = document.getElementById('mobile').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+  document.querySelectorAll('.error').forEach(e => e.textContent = '');
+
+  if (!firstName) {
+    document.getElementById('firstNameError').textContent = 'First name required';
+    isValid = false;
+  }
+
+  if (!lastName) {
+    document.getElementById('lastNameError').textContent = 'Last name required';
+    isValid = false;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailPattern.test(email)) {
+    document.getElementById('emailError').textContent = 'Valid email required';
+    isValid = false;
+  }
+
+  if (!mobile || mobile.length < 10) {
+    document.getElementById('mobileError').textContent = 'Valid mobile required';
+    isValid = false;
+  }
+
+  if (!password || password.length < 6) {
+    document.getElementById('passwordError').textContent = 'Min 6 characters';
+    isValid = false;
+  }
+
+  if (confirmPassword !== password) {
+    document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+
+/* 🔥 AUTO HIDE BACKEND ALERT */
+setTimeout(()=>{
+  const alertBox = document.querySelector(".alert");
+  if(alertBox){
+    alertBox.style.display="none";
+  }
+},3000);
+</script>
+
+</body>
+</html>

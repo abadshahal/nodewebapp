@@ -70,18 +70,34 @@
   <!-- CART TOAST -->
   <div class="cart-toast" id="cartToast">Added to cart ✓</div>
 
-
-
-
-
-
-
-
-
+  <!-- LOGIN REMINDER MODAL -->
+  <div id="loginReminderModal" style="display:none; position:fixed; inset:0; z-index:9999;">
+    <div id="loginReminderBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.55);"></div>
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+         background:#1a1a1a; border:1px solid #333; border-radius:14px;
+         padding:36px 30px; text-align:center;
+         box-shadow:0 8px 40px rgba(0,0,0,0.7); min-width:300px;">
+      <div style="font-size:2rem; margin-bottom:12px;">🔒</div>
+      <h3 style="color:#fff; margin:0 0 8px; font-size:1.2rem;">Please Sign In</h3>
+      <p style="color:#aaa; font-size:0.88rem; margin:0 0 22px; line-height:1.5;">
+        You need to be logged in to add items to your cart.
+      </p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <a href="/signIn" style="background:#c9a84c; color:#000; padding:10px 24px;
+           border-radius:7px; text-decoration:none; font-weight:700; font-size:0.9rem;">
+          Sign In
+        </a>
+        <button id="loginReminderClose" style="background:transparent; color:#aaa; border:1px solid #444;
+               padding:10px 24px; border-radius:7px; cursor:pointer; font-size:0.9rem;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
 /* =============================================
-   VELORIAN — MAIN JAVASCRIPT
+   VELORIAN – MAIN JAVASCRIPT
    ============================================= */
 
 (function () {
@@ -202,14 +218,30 @@
   }, { passive: true });
 
   /* ---------- ADD TO CART ---------- */
+  const isLoggedIn = <% if (typeof user !== 'undefined' && user) { %>true<% } else { %>false<% } %>;
   const cartToast  = document.getElementById("cartToast");
+  const loginModal = document.getElementById("loginReminderModal");
   let toastTimeout;
+
+  // Close modal on backdrop or cancel button click
+  document.getElementById("loginReminderBackdrop").addEventListener("click", () => {
+    loginModal.style.display = "none";
+  });
+  document.getElementById("loginReminderClose").addEventListener("click", () => {
+    loginModal.style.display = "none";
+  });
 
   document.querySelectorAll(".add-cart-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
 
-      // Animate button
+      // Not logged in — show login reminder modal
+      if (!isLoggedIn) {
+        loginModal.style.display = "block";
+        return;
+      }
+
+      // Logged in — animate button and show toast
       btn.textContent = "✓ Added!";
       btn.style.background = "#16a34a";
       setTimeout(() => {
@@ -217,7 +249,6 @@
         btn.style.background = "";
       }, 1800);
 
-      // Show toast
       clearTimeout(toastTimeout);
       cartToast.classList.add("show");
       toastTimeout = setTimeout(() => {
@@ -301,9 +332,7 @@
     });
   });
 
-
-
- /* ---------- PROFILE DROPDOWN ---------- */
+  /* ---------- PROFILE DROPDOWN ---------- */
   const profileBtn = document.getElementById('profileBtn');
   const profileDropdown = document.getElementById('profileDropdown');
   const profileWrap = document.getElementById('profileDropdownWrap');
@@ -320,8 +349,6 @@
       }
     });
   }
-
-
 
 })();
   </script>

@@ -1,4 +1,3 @@
-
      <%-include("../partials/user/header")%>
 
 
@@ -78,175 +77,195 @@
     </div>
   </section>
 
-  <!-- NEW ARRIVALS -->
-  <section class="product-section" id="new-arrivals">
-    <h2 class="section-title">New Arrivals</h2>
-    <div class="products-grid">
-      <div class="product-card">
+  <%
+function firstImage(product) {
+  for (const v of (product.variants || [])) {
+    if (v.images && v.images.length) return v.images[0];
+  }
+  return null;
+}
+function lowestVariant(product) {
+  return (product.variants || []).reduce((best, v) =>
+    (!best || v.price < best.price) ? v : best, null);
+}
+%>
+
+<!-- NEW ARRIVALS -->
+<section class="product-section" id="new-arrivals">
+  <h2 class="section-title">New Arrivals</h2>
+  <div class="products-grid">
+    <% if (!newArrivals || newArrivals.length === 0) { %>
+      <p class="no-products">No products available right now.</p>
+    <% } %>
+    <% (newArrivals || []).forEach(function(product) {
+         const img = firstImage(product);
+         const variant = lowestVariant(product);
+         const isOutOfStock = product.totalStock === 0;
+         const hasOffer = !isOutOfStock && variant && variant.offerValue > 0;
+         const salePrice = hasOffer
+           ? Math.round(variant.price * (1 - variant.offerValue / 100)) : null;
+    %>
+    <div class="product-card">
+      <% if (isOutOfStock) { %>
+        <div class="product-badge" style="background:var(--muted)">Out of Stock</div>
+      <% } else if (hasOffer) { %>
+        <div class="product-badge sale">Sale</div>
+      <% } else { %>
         <div class="product-badge">New</div>
-        <div class="product-img-wrap"><div class="watch-placeholder dark">🕐</div></div>
-        <div class="product-info">
-          <p class="product-name">Audemars Piguet</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices"><span class="price-current">₹1,06,30,333</span></div>
+      <% } %>
+      <a href="/shop/<%= product._id %>">
+        <div class="product-img-wrap">
+          <% if (img) { %>
+            <img src="<%= img %>" alt="<%= product.name %>" loading="lazy" />
+          <% } else { %>
+            <div class="watch-placeholder dark">⌚</div>
+          <% } %>
         </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
-        <div class="product-badge sale">Sale</div>
-        <div class="product-img-wrap"><div class="watch-placeholder gold">⌚</div></div>
-        <div class="product-info">
-          <p class="product-name">Richard Mille RM35-01</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices">
-            <span class="price-current">₹1,22,33,444</span>
-            <span class="price-old">₹1,45,00,000</span>
-          </div>
+      </a>
+      <div class="product-info">
+        <p class="product-name"><%= product.name %></p>
+        <p class="product-brand"><%= product.brand %></p>
+        <div class="product-prices">
+          <% if (hasOffer) { %>
+            <span class="price-current">₹<%= salePrice.toLocaleString("en-IN") %></span>
+            <span class="price-old">₹<%= variant.price.toLocaleString("en-IN") %></span>
+          <% } else if (variant) { %>
+            <span class="price-current">₹<%= variant.price.toLocaleString("en-IN") %></span>
+          <% } %>
         </div>
-        <button class="add-cart-btn">Add to Cart</button>
       </div>
-      <div class="product-card">
-        <div class="product-badge sale">Sale</div>
-        <div class="product-img-wrap"><div class="watch-placeholder blue">🕑</div></div>
-        <div class="product-info">
-          <p class="product-name">Richard Mille RM40-01</p>
-          <div class="stars">★★★★☆</div>
-          <div class="product-prices">
-            <span class="price-current">₹80,06,30,333</span>
-            <span class="price-old">₹95,00,000</span>
-          </div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
-        <div class="product-img-wrap"><div class="watch-placeholder silver">⏱</div></div>
-        <div class="product-info">
-          <p class="product-name">Rolex Submariner</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices"><span class="price-current">₹80,22,333</span></div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
+      <% if (isOutOfStock) { %>
+        <button class="add-cart-btn" disabled
+          style="opacity:0.45;cursor:not-allowed;background:var(--muted);transform:translateY(0);opacity:1;">
+          Out of Stock
+        </button>
+      <% } else { %>
+        <button class="add-cart-btn" data-id="<%= product._id %>">Add to Cart</button>
+      <% } %>
     </div>
-  </section>
-
-  <!-- DIVIDER BANNER -->
-  <div class="mid-banner">
-    <div class="mid-banner-text">Excellence in Every Second</div>
+    <% }); %>
   </div>
+</section>
 
-  <!-- TRENDING -->
-  <section class="product-section" id="trending">
-    <h2 class="section-title">Trending</h2>
-    <div class="products-grid">
-      <div class="product-card">
-        <div class="product-badge hot">Hot</div>
-        <div class="product-img-wrap"><div class="watch-placeholder dark">🕐</div></div>
-        <div class="product-info">
-          <p class="product-name">Audemars Piguet</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices"><span class="price-current">₹1,06,30,333</span></div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
-        <div class="product-badge hot">Hot</div>
-        <div class="product-img-wrap"><div class="watch-placeholder gold">⌚</div></div>
-        <div class="product-info">
-          <p class="product-name">Richard Mille RM35-01</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices">
-            <span class="price-current">₹2,33,00,000</span>
-            <span class="price-old">₹2,80,00,000</span>
-          </div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
-        <div class="product-badge sale">Sale</div>
-        <div class="product-img-wrap"><div class="watch-placeholder blue">🕑</div></div>
-        <div class="product-info">
-          <p class="product-name">Richard Mille RM40-01</p>
-          <div class="stars">★★★★☆</div>
-          <div class="product-prices">
-            <span class="price-current">₹49,06,30,333</span>
-            <span class="price-old">₹60,00,000</span>
-          </div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
-        <div class="product-img-wrap"><div class="watch-placeholder silver">⏱</div></div>
-        <div class="product-info">
-          <p class="product-name">Rolex Submariner</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices">
-            <span class="price-current">₹48,22,000</span>
-            <span class="price-old">₹55,00,000</span>
-          </div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-    </div>
-  </section>
+<!-- DIVIDER BANNER -->
+<div class="mid-banner">
+  <div class="mid-banner-text">Excellence in Every Second</div>
+</div>
 
-  <!-- EXPLORE MORE -->
-  <section class="product-section" id="explore">
-    <h2 class="section-title">Explore More</h2>
-    <div class="products-grid">
-      <div class="product-card">
-        <div class="product-img-wrap"><div class="watch-placeholder dark">🕐</div></div>
-        <div class="product-info">
-          <p class="product-name">Audemars Piguet</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices"><span class="price-current">₹36,30,333</span></div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
+<!-- TRENDING -->
+<section class="product-section" id="trending">
+  <h2 class="section-title">Trending</h2>
+  <div class="products-grid">
+    <% if (!trending || trending.length === 0) { %>
+      <p class="no-products">No products available right now.</p>
+    <% } %>
+    <% (trending || []).forEach(function(product) {
+         const img = firstImage(product);
+         const variant = lowestVariant(product);
+         const isOutOfStock = product.totalStock === 0;
+         const hasOffer = !isOutOfStock && variant && variant.offerValue > 0;
+         const salePrice = hasOffer
+           ? Math.round(variant.price * (1 - variant.offerValue / 100)) : null;
+    %>
+    <div class="product-card">
+      <% if (isOutOfStock) { %>
+        <div class="product-badge" style="background:var(--muted)">Out of Stock</div>
+      <% } else if (hasOffer) { %>
         <div class="product-badge sale">Sale</div>
-        <div class="product-img-wrap"><div class="watch-placeholder gold">⌚</div></div>
-        <div class="product-info">
-          <p class="product-name">Richard Mille RM35-01</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices">
-            <span class="price-current">₹2,33,00,000</span>
-            <span class="price-old">₹2,80,00,000</span>
-          </div>
+      <% } else { %>
+        <div class="product-badge hot">Hot</div>
+      <% } %>
+      <a href="/shop/<%= product._id %>">
+        <div class="product-img-wrap">
+          <% if (img) { %>
+            <img src="<%= img %>" alt="<%= product.name %>" loading="lazy" />
+          <% } else { %>
+            <div class="watch-placeholder gold">⌚</div>
+          <% } %>
         </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
-      <div class="product-card">
-        <div class="product-badge sale">Sale</div>
-        <div class="product-img-wrap"><div class="watch-placeholder blue">🕑</div></div>
-        <div class="product-info">
-          <p class="product-name">Richard Mille RM40-01</p>
-          <div class="stars">★★★★☆</div>
-          <div class="product-prices">
-            <span class="price-current">₹80,06,30,333</span>
-            <span class="price-old">₹95,00,000</span>
-          </div>
+      </a>
+      <div class="product-info">
+        <p class="product-name"><%= product.name %></p>
+        <p class="product-brand"><%= product.brand %></p>
+        <div class="product-prices">
+          <% if (hasOffer) { %>
+            <span class="price-current">₹<%= salePrice.toLocaleString("en-IN") %></span>
+            <span class="price-old">₹<%= variant.price.toLocaleString("en-IN") %></span>
+          <% } else if (variant) { %>
+            <span class="price-current">₹<%= variant.price.toLocaleString("en-IN") %></span>
+          <% } %>
         </div>
-        <button class="add-cart-btn">Add to Cart</button>
       </div>
-      <div class="product-card">
-        <div class="product-img-wrap"><div class="watch-placeholder silver">⏱</div></div>
-        <div class="product-info">
-          <p class="product-name">Rolex Submariner</p>
-          <div class="stars">★★★★★</div>
-          <div class="product-prices">
-            <span class="price-current">₹80,22,000</span>
-            <span class="price-old">₹1,10,00,000</span>
-          </div>
-        </div>
-        <button class="add-cart-btn">Add to Cart</button>
-      </div>
+      <% if (isOutOfStock) { %>
+        <button class="add-cart-btn" disabled
+          style="opacity:0.45;cursor:not-allowed;background:var(--muted);transform:translateY(0);opacity:1;">
+          Out of Stock
+        </button>
+      <% } else { %>
+        <button class="add-cart-btn" data-id="<%= product._id %>">Add to Cart</button>
+      <% } %>
     </div>
-  </section>
+    <% }); %>
+  </div>
+</section>
+
+<!-- EXPLORE MORE -->
+<section class="product-section" id="explore">
+  <h2 class="section-title">Explore More</h2>
+  <div class="products-grid">
+    <% if (!explore || explore.length === 0) { %>
+      <p class="no-products">No products available right now.</p>
+    <% } %>
+    <% (explore || []).forEach(function(product) {
+         const img = firstImage(product);
+         const variant = lowestVariant(product);
+         const isOutOfStock = product.totalStock === 0;
+         const hasOffer = !isOutOfStock && variant && variant.offerValue > 0;
+         const salePrice = hasOffer
+           ? Math.round(variant.price * (1 - variant.offerValue / 100)) : null;
+    %>
+    <div class="product-card">
+      <% if (isOutOfStock) { %>
+        <div class="product-badge" style="background:var(--muted)">Out of Stock</div>
+      <% } else if (hasOffer) { %>
+        <div class="product-badge sale">Sale</div>
+      <% } %>
+      <a href="/shop/<%= product._id %>">
+        <div class="product-img-wrap">
+          <% if (img) { %>
+            <img src="<%= img %>" alt="<%= product.name %>" loading="lazy" />
+          <% } else { %>
+            <div class="watch-placeholder silver">⌚</div>
+          <% } %>
+        </div>
+      </a>
+      <div class="product-info">
+        <p class="product-name"><%= product.name %></p>
+        <p class="product-brand"><%= product.brand %></p>
+        <div class="product-prices">
+          <% if (hasOffer) { %>
+            <span class="price-current">₹<%= salePrice.toLocaleString("en-IN") %></span>
+            <span class="price-old">₹<%= variant.price.toLocaleString("en-IN") %></span>
+          <% } else if (variant) { %>
+            <span class="price-current">₹<%= variant.price.toLocaleString("en-IN") %></span>
+          <% } %>
+        </div>
+      </div>
+      <% if (isOutOfStock) { %>
+        <button class="add-cart-btn" disabled
+          style="opacity:0.45;cursor:not-allowed;background:var(--muted);transform:translateY(0);opacity:1;">
+          Out of Stock
+        </button>
+      <% } else { %>
+        <button class="add-cart-btn" data-id="<%= product._id %>">Add to Cart</button>
+      <% } %>
+    </div>
+    <% }); %>
+  </div>
+</section>
 
     
 
 
     <!-- Footer Section Begin -->
     <%-include("../partials/user/footer")%> 
-   

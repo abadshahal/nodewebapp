@@ -1,86 +1,63 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/user/userController");
 const passport = require("passport");
-const verifyToken = require("../middlewares/verifyToken");
+const authController = require("../controllers/user/authController");
+const { loadShopPage, loadProductDetailPage } = require("../controllers/user/productController");
+const { attachUser, verifyUser } = require("../middlewares/auth");
 
 
-// const redirectIfLoggedIn = (req, res, next) => {
-//   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-//   res.set('Pragma', 'no-cache');
-//   res.set('Expires', '0');
-  
-//   const token = req.cookies.token;
-//   if (token) {
-//     try {
-//       const jwt = require('jsonwebtoken');
-//       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//       if (decoded.role === 'user') return res.redirect('/home');
-//     } catch (err) {}
-//   }
-//   next();
-// };
+//cart
+const {
+  loadCartPage,
+  addToCart,
+  updateQuantity,
+  removeFromCart,
+  getCartCount,
+} = require("../controllers/user/cartController");
 
 
-// router.get("/signIn", redirectIfLoggedIn, userController.loadLoginPage);
-// router.get("/signup", redirectIfLoggedIn, userController.loadSignupPage)
+//home
+router.get("/", attachUser, authController.loadHomepage);
+router.get("/home", attachUser, authController.loadHomepage);
 
+//shop
+router.get("/shop", attachUser, loadShopPage);
+router.get("/shop/:id", attachUser, loadProductDetailPage);
 
-router.get("/signIn", userController.loadLoginPage);
-router.post("/signIn", userController.signIn);
+//cart
 
-router.get("/signup", userController.loadSignupPage);
-router.post("/signup", userController.signup);
+router.get("/cart",verifyUser, loadCartPage);
+router.post("/cart/add",verifyUser, addToCart);
+router.patch("/cart/update-quantity",verifyUser, updateQuantity);
+router.delete("/cart/remove/:itemId",verifyUser, removeFromCart);
+router.get("/cart/count",verifyUser, getCartCount);
 
-router.post("/verify-otp", userController.verifyOtp);
-router.post("/resend-otp", userController.resendOtp);
+// Auth part 
+router.get("/signIn", authController.loadLoginPage);
+router.post("/signIn", authController.signIn);
+router.get("/signup", authController.loadSignupPage);
+router.post("/signup", authController.signup);
+router.post("/verify-otp", authController.verifyOtp);
+router.post("/resend-otp", authController.resendOtp);
+router.get("/logout", authController.logout);
 
-
-
-router.get("/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    session: false,
-  })
-);
-
+// google aouth
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 router.get("/auth/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/signup",
-    session: false,
-  }),
-  userController.googleCallback
+  passport.authenticate("google", { failureRedirect: "/signup", session: false }),
+  authController.googleCallback
 );
 
+// forgot pass
+router.get("/forgot-password", authController.forgotPasswordPage);
+router.post("/forgot-password", authController.forgotPassword);
+router.get("/verify-forgot-otp", authController.verifyForgotOtpPage);
+router.post("/verify-forgot-otp", authController.verifyForgotOtp);
+router.get("/reset-password", authController.resetPasswordPage);
+router.post("/reset-password", authController.resetPassword);
+router.post("/resend-forgot-otp", authController.resendForgotOtp);
 
 
-router.get("/home", verifyToken, userController.loadHomepage);
-
-
-
-router.get("/logout", userController.logout);
-router.get("/pageNotFound", userController.pageNotFound);
-
-
-
-
-
-
-
-
-router.get("/forgot-password",userController.forgotPasswordPage)
-router.post("/forgot-password",userController.forgotPassword);
-router.get("/verify-forgot-otp",userController.verifyForgotOtpPage)
-router.post('/verify-forgot-otp',userController.verifyForgotOtp);
-router.get('/reset-password',userController. resetPasswordPage);
-router.post('/reset-password',userController.    resetPassword);
-router.post('/resend-forgot-otp',userController.resendForgotOtp);
-
-
-
-
-
-
-
+router.get("/pageNotFound", authController.pageNotFound);
 
 module.exports = router;

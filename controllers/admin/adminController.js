@@ -1,33 +1,34 @@
-const User=require("../../models/userSchema");
-const Order=require("../../models/orderSchema")
-const bcrypt=require("bcrypt")
-const jwt=require("jsonwebtoken");
+const User = require("../../models/userSchema");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const httpStatus = require("../../constants/httpStatus");
 
-const loadAdminLogin=async(req,res)=>{
-    try {
 
-        return res.render("login")
-    } catch (error) {
-        return res.redirect("/pageNotFound")
-    }
-}
+const loadAdminLogin = (req, res) => {
+  return res.render("admin/login");
+};
+
 
 
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("admin email",email)
-    console.log("admin password",password)
+    console.log(email)
+    console.log(password)
 
     if (!email || !password) {
-      return res.status(400).render("login", { error: "Email and password are required" });
+      return res.status(httpStatus.BAD_REQUEST).render("admin/login", {
+        error: "Email and password are required",
+      });
     }
 
     const user = await User.findOne({ email, isAdmin: true });
     const isMatch = user ? await bcrypt.compare(password, user.password) : false;
 
     if (!user || !isMatch) {
-      return res.status(401).render("login", { error: "Invalid credentials" });
+      return res.status(httpStatus.UNAUTHORIZED).render("admin/login", {
+        error: "Invalid credentials",
+      });
     }
 
     const token = jwt.sign(
@@ -47,7 +48,9 @@ const login = async (req, res) => {
 
   } catch (error) {
     console.error("Admin login error:", error);
-    return res.status(500).render("login", { error: "Server error. Please try again." });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).render("admin/login", {
+      error: "Server error. Please try again.",
+    });
   }
 };
 
@@ -56,17 +59,15 @@ const logout = (req, res) => {
   res.clearCookie("adminToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict"
+    sameSite: "strict",
   });
   res.redirect("/admin/login");
 };
 
 
-module.exports={
-    loadAdminLogin,
-    login,
-    logout
-    
-   
-    
-}
+
+module.exports = {
+  loadAdminLogin,
+  login,
+  logout,
+};

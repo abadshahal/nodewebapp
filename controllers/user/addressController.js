@@ -1,5 +1,7 @@
 const Address = require("../../models/addressSchema");
+const httpStatus = require("../../constants/httpStatus");
 
+//  Get Add Address Page
 
 const getAddAddress = async (req, res) => {
   try {
@@ -10,38 +12,50 @@ const getAddAddress = async (req, res) => {
   }
 };
 
+// Post Add Address
 
 const postAddAddress = async (req, res) => {
   try {
-    let {
+    const {
       fullName, phone, street, city,
       state, pincode, country, landmark,
       type, isDefault
     } = req.body;
 
-  
     if (!fullName || !phone || !street || !city || !state || !pincode) {
-      return res.json({ success: false, message: "Please fill all required fields" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Please fill all required fields",
+      });
     }
 
     if (!/^[6-9]\d{9}$/.test(phone.trim())) {
-      return res.json({ success: false, message: "Invalid phone number" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid phone number",
+      });
     }
 
     if (!/^\d{6}$/.test(pincode.trim())) {
-      return res.json({ success: false, message: "Invalid pincode" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid pincode",
+      });
     }
 
     const count = await Address.countDocuments({ userId: req.user.id });
 
     if (count >= 5) {
-      return res.json({ success: false, message: "Max 5 addresses allowed" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Maximum 5 addresses allowed",
+      });
     }
 
-    
-    let makeDefault = false;
+    // First address is always default; otherwise respect the isDefault flag
+    let makeDefault = count === 0;
 
-    if (isDefault === "true" || isDefault === true) {
+    if (!makeDefault && (isDefault === "true" || isDefault === true)) {
       await Address.updateMany(
         { userId: req.user.id },
         { $set: { isDefault: false } }
@@ -49,12 +63,6 @@ const postAddAddress = async (req, res) => {
       makeDefault = true;
     }
 
-   
-    if (count === 0) {
-      makeDefault = true;
-    }
-
-   
     await Address.create({
       userId: req.user.id,
       fullName: fullName.trim(),
@@ -66,72 +74,84 @@ const postAddAddress = async (req, res) => {
       country: country ? country.trim() : "India",
       landmark: landmark ? landmark.trim() : "",
       type: type || "Home",
-      isDefault: makeDefault
+      isDefault: makeDefault,
     });
 
-    return res.json({ success: true, message: "Address added successfully" });
-
+    return res.status(httpStatus.CREATED).json({
+      success: true,
+      message: "Address added successfully",
+    });
   } catch (err) {
     console.error("postAddAddress error:", err);
-    return res.json({ success: false, message: "Server error" });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
+// Get Edit Address Page 
 
 const getEditAddress = async (req, res) => {
   try {
     const address = await Address.findOne({
       _id: req.params.id,
-      userId: req.user.id
+      userId: req.user.id,
     }).lean();
 
     if (!address) return res.redirect("/profile");
 
-    res.render("edit-address", {
-      user: req.user,
-      address
-    });
-
+    res.render("edit-address", { user: req.user, address });
   } catch (err) {
     console.error("getEditAddress error:", err);
     res.redirect("/pageNotFound");
   }
 };
 
+//  Post Edit Address
 
-//edit addres
-   
 const postEditAddress = async (req, res) => {
   try {
-    let {
+    const {
       fullName, phone, street, city,
       state, pincode, country, landmark,
       type, isDefault
     } = req.body;
 
-   //adres validation
     if (!fullName || !phone || !street || !city || !state || !pincode) {
-      return res.json({ success: false, message: "Please fill all required fields" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Please fill all required fields",
+      });
     }
 
     if (!/^[6-9]\d{9}$/.test(phone.trim())) {
-      return res.json({ success: false, message: "Invalid phone number" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid phone number",
+      });
     }
 
     if (!/^\d{6}$/.test(pincode.trim())) {
-      return res.json({ success: false, message: "Invalid pincode" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid pincode",
+      });
     }
 
     const address = await Address.findOne({
       _id: req.params.id,
-      userId: req.user.id
+      userId: req.user.id,
     });
 
     if (!address) {
-      return res.json({ success: false, message: "Address not found" });
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        message: "Address not found",
+      });
     }
 
-    //  Handle default
+    //
     if (isDefault === "true" || isDefault === true) {
       await Address.updateMany(
         { userId: req.user.id },
@@ -140,100 +160,103 @@ const postEditAddress = async (req, res) => {
       address.isDefault = true;
     }
 
-    // Update fields
     address.fullName = fullName.trim();
     address.phone    = phone.trim();
     address.street   = street.trim();
     address.city     = city.trim();
     address.state    = state.trim();
-   address.pincode = Number(pincode);
+    address.pincode  = Number(pincode);
     address.country  = country ? country.trim() : "India";
     address.landmark = landmark ? landmark.trim() : "";
     address.type     = type || "Home";
 
     await address.save();
 
-    return res.json({ success: true, message: "Address updated successfully" });
-
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: "Address updated successfully",
+    });
   } catch (err) {
     console.error("postEditAddress error:", err);
-    return res.json({ success: false, message: "Server error" });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
-//delete address
+//  Delete Address 
+
 const deleteAddress = async (req, res) => {
   try {
     const address = await Address.findOne({
       _id: req.params.id,
-      userId: req.user.id
+      userId: req.user.id,
     });
 
     if (!address) {
-      return res.json({ success: false, message: "Address not found" });
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        message: "Address not found",
+      });
     }
 
     const wasDefault = address.isDefault;
 
     await Address.findByIdAndDelete(req.params.id);
 
+    // Promote the oldest remaining address to default if deleted one was default
     if (wasDefault) {
-        const next = await Address.findOne({ userId: req.user.id })
-  .sort({ createdAt: 1 });
-    
+      const next = await Address.findOne({ userId: req.user.id }).sort({ createdAt: 1 });
       if (next) {
         next.isDefault = true;
         await next.save();
       }
     }
 
-    return res.json({ success: true });
-
+    return res.status(httpStatus.OK).json({ success: true });
   } catch (err) {
     console.error("deleteAddress error:", err);
-    return res.json({ success: false, message: "Server error" });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
+//  Set Default Address 
 
 const setDefaultAddress = async (req, res) => {
   try {
-    // Remove old default
     await Address.updateMany(
       { userId: req.user.id },
       { $set: { isDefault: false } }
     );
 
-    // Set new default
-    await Address.findOneAndUpdate(
-  { _id: req.params.id, userId: req.user.id },
-  { isDefault: true }
-);
+    const updated = await Address.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      { isDefault: true }
+    );
 
-    return res.json({ success: true, message: "Default updated" });
+    if (!updated) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        message: "Address not found",
+      });
+    }
 
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: "Default address updated",
+    });
   } catch (err) {
     console.error("setDefaultAddress error:", err);
-    return res.json({ success: false, message: "Server error" });
-  }
-};
-
-const getProfile = async (req, res) => {
-  try {
-    const addresses = await Address.find({ userId: req.user.id })
-      .sort({ isDefault: -1, createdAt: -1 });
-
-    res.render("profile", {
-      user: req.user,
-      addresses 
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
     });
-
-  } catch (err) {
-    console.error("getProfile error:", err);
-    res.redirect("/pageNotFound");
   }
 };
-
 
 
 module.exports = {
@@ -243,5 +266,4 @@ module.exports = {
   postEditAddress,
   deleteAddress,
   setDefaultAddress,
-  getProfile
 };

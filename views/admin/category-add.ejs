@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Velorian | Add Category</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-darkest:  #060d1a;
+      --bg-dark:     #0b1628;
+      --bg-sidebar:  #0d1b2e;
+      --border:      #1e3050;
+      --text-primary:#e8edf5;
+      --text-muted:  #5a7498;
+      --accent-blue: #2563eb;
+      --accent-blue-h:#1d4ed8;
+      --red:         #ef4444;
+      --input-bg:    #f8fafc;
+      --font: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body { font-family: var(--font); background: var(--bg-darkest); color: var(--text-primary); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px; min-height: 100vh; background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; font-size: 1.4rem; font-weight: 800; letter-spacing: 3px; border-bottom: 1px solid var(--border); }
+    .sidebar-nav { flex: 1; padding: 12px 0; }
+    .nav-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; cursor: pointer; transition: background .15s;
+      color: var(--text-primary); text-decoration: none; font-size: .92rem;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.04); }
+    .nav-item.active { background: rgba(37,99,235,.15); border-left: 3px solid var(--accent-blue); }
+    .nav-item-left { display: flex; align-items: center; gap: 12px; }
+    .nav-item i { width: 18px; text-align: center; color: var(--text-muted); }
+    .nav-item.active i { color: var(--accent-blue); }
+    .nav-chevron { color: var(--text-muted); font-size: .75rem; }
+    .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+    .btn-outline-sm { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-primary); cursor: pointer; font-size: .85rem; }
+
+    /* ── TOPBAR ── */
+    .main-wrapper { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+    .topbar { height: 56px; background: var(--bg-dark); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-end; padding: 0 28px; gap: 4px; }
+    .topbar-name { font-size: .92rem; font-weight: 600; }
+    .topbar-role { font-size: .75rem; color: var(--text-muted); }
+
+    /* ── CONTENT ── */
+    .content { padding: 48px 60px; flex: 1; max-width: 900px; }
+    .page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 40px; }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 22px; }
+    .form-label { display: block; font-size: .83rem; color: var(--text-muted); margin-bottom: 8px; letter-spacing: .03em; }
+    .form-control {
+      width: 100%; padding: 14px 16px; border-radius: 8px;
+      border: 1px solid transparent; outline: none;
+      background: var(--input-bg); color: #1a1a2e;
+      font-size: .92rem; font-family: var(--font);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control::placeholder { color: #9ca3af; }
+    .form-control:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+    textarea.form-control { resize: vertical; min-height: 150px; }
+
+    /* Offer row */
+    .offer-row { margin-bottom: 28px; }
+    .offer-input-wrap {
+      display: flex; align-items: center; gap: 0;
+      background: var(--input-bg); border-radius: 8px;
+      border: 1px solid transparent; overflow: hidden;
+      transition: border-color .15s, box-shadow .15s;
+      width: 200px;
+    }
+    .offer-input-wrap:focus-within {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+    .offer-input {
+      flex: 1; padding: 14px 16px;
+      background: transparent; border: none;
+      color: #1a1a2e; font-size: .92rem;
+      font-family: var(--font); outline: none;
+    }
+    .offer-input::placeholder { color: #9ca3af; }
+    .offer-suffix {
+      padding: 0 14px 0 0;
+      color: #6b7280; font-size: .92rem; font-weight: 600;
+      user-select: none;
+    }
+
+    /* Error */
+    .field-error { font-size: .78rem; color: var(--red); margin-top: 5px; }
+
+    /* Alert */
+    .alert {
+      padding: 12px 16px; border-radius: 8px; font-size: .87rem;
+      margin-bottom: 22px; border-left: 4px solid;
+    }
+    .alert-error   { background: rgba(239,68,68,.1);  border-color: var(--red);  color: #fca5a5; }
+    .alert-success { background: rgba(34,197,94,.1);  border-color: #22c55e;     color: #86efac; }
+
+    /* Actions */
+    .form-actions { margin-top: 40px; display: flex; gap: 12px; }
+    .btn-primary {
+      background: var(--accent-blue); color: #fff; border: none;
+      padding: 13px 40px; border-radius: 9px; font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: background .15s; letter-spacing: .03em;
+    }
+    .btn-primary:hover { background: var(--accent-blue-h); }
+    .btn-cancel {
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+      padding: 13px 40px; border-radius: 9px; font-size: .95rem; font-weight: 600;
+      cursor: pointer; transition: background .15s; text-decoration: none;
+      display: inline-flex; align-items: center;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,.05); color: var(--text-primary); }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">VELORIAN</div>
+  <nav class="sidebar-nav">
+    <a href="/admin/dashboard" class="nav-item"><div class="nav-item-left"><i class="fas fa-circle-dot"></i> Dashboard</div></a>
+    <a href="/admin/products"  class="nav-item"><div class="nav-item-left"><i class="fas fa-box"></i> Products</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+    <a href="/admin/orders"    class="nav-item"><div class="nav-item-left"><i class="fas fa-list"></i> Order List</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+    <a href="/admin/customers" class="nav-item"><div class="nav-item-left"><i class="fas fa-user"></i> Customer</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+    <a href="/admin/sales"     class="nav-item"><div class="nav-item-left"><i class="fas fa-receipt"></i> Sales</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+    <a href="/admin/categories" class="nav-item active"><div class="nav-item-left"><i class="fas fa-table-cells-large"></i> Category</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+    <a href="/admin/coupons"   class="nav-item"><div class="nav-item-left"><i class="fas fa-ticket"></i> Coupons</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+    <a href="/admin/returns"   class="nav-item"><div class="nav-item-left"><i class="fas fa-rotate-left"></i> Return List</div><i class="fas fa-chevron-right nav-chevron"></i></a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/admin/account" class="btn-outline-sm">Account</a>
+    <a href="/admin/logout"  class="btn-outline-sm">Logout</a>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main-wrapper">
+  <div class="topbar">
+    <div style="text-align:right">
+      <div class="topbar-name"><%= admin.name %></div>
+      <div class="topbar-role">Admin</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1 class="page-title">Add Category</h1>
+
+    <!-- Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-error">
+        <i class="fas fa-circle-exclamation" style="margin-right:8px"></i><%= error %>
+      </div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert alert-success">
+        <i class="fas fa-circle-check" style="margin-right:8px"></i><%= success %>
+      </div>
+    <% } %>
+
+    <form method="POST" action="/admin/categories/add" id="addCategoryForm" novalidate>
+
+      <!-- Category Name -->
+      <div class="form-group">
+        <label class="form-label" for="name">Category Name <span style="color:var(--red)">*</span></label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          placeholder="e.g. Luxury Watches"
+          value="<%= typeof formData !== 'undefined' ? formData.name || '' : '' %>"
+          autocomplete="off"
+          required
+        />
+        <% if (typeof errors !== 'undefined' && errors.name) { %>
+          <div class="field-error"><i class="fas fa-circle-exclamation"></i> <%= errors.name %></div>
+        <% } %>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label" for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          class="form-control"
+          placeholder="Briefly describe this category..."
+        ><%= typeof formData !== 'undefined' ? formData.description || '' : '' %></textarea>
+        <% if (typeof errors !== 'undefined' && errors.description) { %>
+          <div class="field-error"><i class="fas fa-circle-exclamation"></i> <%= errors.description %></div>
+        <% } %>
+      </div>
+
+      <!-- Category Offer -->
+      <div class="form-group offer-row">
+        <label class="form-label" for="offerValue">Category Offer</label>
+        <div class="offer-input-wrap">
+          <input
+            type="number"
+            id="offerValue"
+            name="offerValue"
+            class="offer-input"
+            placeholder="0"
+            min="0"
+            max="100"
+            value="<%= typeof formData !== 'undefined' ? formData.offerValue || '' : '' %>"
+          />
+          <span class="offer-suffix">% off</span>
+        </div>
+        <% if (typeof errors !== 'undefined' && errors.offerValue) { %>
+          <div class="field-error"><i class="fas fa-circle-exclamation"></i> <%= errors.offerValue %></div>
+        <% } %>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Add Category</button>
+        <a href="/admin/categories" class="btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
+    let valid = true;
+
+    const nameInput = document.getElementById('name');
+    if (!nameInput.value.trim()) {
+      nameInput.style.borderColor = '#ef4444';
+      nameInput.focus();
+      valid = false;
+    }
+
+    const offerInput = document.getElementById('offerValue');
+    const offerVal   = Number(offerInput.value);
+    if (offerInput.value !== '' && (offerVal < 0 || offerVal > 100)) {
+      offerInput.style.borderColor = '#ef4444';
+      if (valid) offerInput.focus();
+      valid = false;
+    }
+
+    if (!valid) e.preventDefault();
+  });
+
+  // Reset border on input
+  ['name', 'offerValue'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      this.style.borderColor = '';
+    });
+  });
+</script>
+</body>
+</html>

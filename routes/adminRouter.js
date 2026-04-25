@@ -3,6 +3,10 @@ const router = express.Router();
 const adminController = require("../controllers/admin/adminController");
 const { verifyAdmin } = require("../middlewares/auth");
 const customerController = require("../controllers/admin/customerController");
+const noCache=require("../middlewares/noCache")
+
+
+router.use(noCache)
 
 
 router.get("/login", (req, res, next) => {
@@ -11,7 +15,9 @@ router.get("/login", (req, res, next) => {
     try {
       const decoded = require("jsonwebtoken").verify(token, process.env.JWT_SECRET);
       if (decoded.role === "admin") return res.redirect("/admin/customers");
-    } catch (err) {}
+    } catch (err) {
+      console.log("admin side error",err)
+    }
   }
   next();
 }, adminController.loadAdminLogin);

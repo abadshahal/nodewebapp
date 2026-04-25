@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="-1" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customer List | Velorian Admin</title>
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="-1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Category | Velorian Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     /* ── Reset & Variables ─────────────────────────────────────────── */
@@ -101,10 +101,21 @@
     .main { flex: 1; padding: 28px 36px 48px; overflow-y: auto; }
 
     /* ── Page header ───────────────────────────────────────────────── */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
     .page-title { font-size: 28px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
     .breadcrumb { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--text-muted); }
     .breadcrumb a:hover { color: var(--accent-blue2); }
     .bc-sep { opacity: .4; }
+
+    /* ── Add button ────────────────────────────────────────────────── */
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; background: var(--accent-blue);
+      color: #fff; font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-add:hover { background: var(--accent-blue2); }
+    .btn-add svg { width: 15px; height: 15px; }
 
     /* ── Filters ───────────────────────────────────────────────────── */
     .filters { display: flex; align-items: center; gap: 12px; margin: 24px 0; flex-wrap: wrap; }
@@ -157,7 +168,6 @@
       font-size: 12px; font-weight: 600; letter-spacing: .05em;
       color: #fff; text-transform: lowercase;
     }
-    .th-blocked { color: #ffb3b3; }
 
     .ctable tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
     .ctable tbody tr:nth-child(even) { background: var(--bg-row-alt); }
@@ -165,36 +175,46 @@
     .ctable tbody tr:hover           { background: var(--accent-hover); }
     .ctable td { padding: 13px 18px; vertical-align: middle; }
 
-    .td-info { display: flex; flex-direction: column; gap: 2px; }
     .td-name  { font-weight: 600; font-size: 13px; }
-    .td-email { font-size: 11.5px; color: var(--text-muted); }
     .td-muted { color: var(--text-muted); font-size: 13px; }
 
-    /* ── Toggle buttons ────────────────────────────────────────────── */
-    .tog-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 5px 12px 5px 14px; border-radius: 20px; border: none;
-      font-size: 12px; font-weight: 600; cursor: pointer;
-      font-family: var(--font); letter-spacing: .03em;
-      transition: opacity .15s, transform .1s;
-    }
-    .tog-btn:hover  { opacity: .85; transform: scale(1.03); }
-    .tog-btn:active { transform: scale(.97); }
-    .tog-block   { background: rgba(34,197,94,.15);  color: var(--green); }
-    .tog-unblock { background: rgba(239,68,68,.15);  color: var(--red);   }
+    /* ── Toggle switch ─────────────────────────────────────────────── */
+    .toggle-wrap { display: flex; align-items: center; gap: 8px; }
 
-    .tog-track {
-      display: inline-flex; align-items: center;
-      width: 34px; height: 18px; border-radius: 9px; padding: 2px;
+    .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--red); border-radius: 22px;
+      cursor: pointer; transition: background .2s;
     }
-    .tog-track.on  { background: var(--green); justify-content: flex-end; }
-    .tog-track.off { background: var(--red);   justify-content: flex-start; }
-    .tog-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+    .toggle-slider::before {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      left: 3px; top: 3px; background: #fff; border-radius: 50%;
+      transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--green); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
-    /* ── Status badge ──────────────────────────────────────────────── */
-    .badge        { font-size: 12.5px; font-weight: 600; }
-    .badge-active { color: var(--green); }
-    .badge-block  { color: var(--red); }
+    .toggle-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .05em;
+      padding: 3px 8px; border-radius: 4px; min-width: 44px; text-align: center;
+    }
+    .toggle-label.listed   { background: rgba(239,68,68,.18);  color: var(--red); }
+    .toggle-label.unlisted { background: rgba(34,197,94,.18);  color: var(--green); }
+
+    /* ── Action buttons ────────────────────────────────────────────── */
+    .btn-icon {
+      width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-primary); cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-icon:hover { background: var(--accent-hover); border-color: var(--accent-blue); }
+    .btn-icon.delete { color: var(--red); }
+    .btn-icon.delete:hover { background: rgba(239,68,68,.12); border-color: var(--red); }
+    .btn-icon svg { width: 14px; height: 14px; }
+
+    .td-actions { display: flex; align-items: center; gap: 8px; }
 
     /* ── Empty state ───────────────────────────────────────────────── */
     .empty { text-align: center; padding: 64px 20px !important; }
@@ -254,7 +274,6 @@
     .modal-btn:hover  { opacity: .85; transform: scale(1.02); }
     .m-cancel      { background: rgba(255,255,255,.08); color: var(--text-muted); }
     .m-confirm     { background: var(--red); color: #fff; }
-    .m-confirm.unblock { background: var(--green); }
   </style>
 </head>
 <body>
@@ -300,8 +319,7 @@
         <svg class="sb-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
 
-      <!-- Customer — ACTIVE -->
-      <a href="/admin/customers" class="sb-item active">
+      <a href="/admin/customers" class="sb-item">
         <span class="sb-item-left">
           <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -323,7 +341,8 @@
         <svg class="sb-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
 
-      <a href="/admin/categories" class="sb-item">
+      <!-- Category — ACTIVE -->
+      <a href="/admin/categories" class="sb-item active">
         <span class="sb-item-left">
           <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M4 6h16M4 12h16M4 18h7"/>
@@ -380,15 +399,24 @@
     <!-- Main -->
     <div class="main">
 
-      <h1 class="page-title">CUSTOMER LIST</h1>
+      <div class="page-header">
+        <h1 class="page-title">CATEGORY LIST</h1>
+        <a href="/admin/categories/add" class="btn-add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Category
+        </a>
+      </div>
+
       <nav class="breadcrumb">
         <a href="/admin/dashboard">Dashboard</a>
         <span class="bc-sep">›</span>
-        <span>Customer List</span>
+        <span>Category List</span>
       </nav>
 
       <!-- Filters -->
-      <form method="GET" action="/admin/customers" id="filterForm">
+      <form method="GET" action="/admin/categories" id="filterForm">
         <div class="filters">
 
           <div class="search-box">
@@ -399,23 +427,17 @@
             </span>
             <input
               type="text" name="search" id="searchInput"
-              class="search-input" placeholder="Search customer..."
+              class="search-input" placeholder="Search category..."
               value="<%= search || '' %>" autocomplete="off"
             />
             <% if (search) { %>
-              <a href="/admin/customers" class="search-clear" title="Clear">
+              <a href="/admin/categories" class="search-clear" title="Clear">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
               </a>
             <% } %>
           </div>
-
-          <select name="status" class="filter-select" onchange="document.getElementById('filterForm').submit()">
-            <option value=""        <%= !status             ? 'selected' : '' %>>All Status</option>
-            <option value="active"  <%= status === 'active' ? 'selected' : '' %>>Active</option>
-            <option value="blocked" <%= status === 'blocked'? 'selected' : '' %>>Blocked</option>
-          </select>
 
           <select name="sort" class="filter-select" onchange="document.getElementById('filterForm').submit()">
             <option value="newest" <%= !sort || sort === 'newest' ? 'selected' : '' %>>Newest First</option>
@@ -432,64 +454,75 @@
         <table class="ctable">
           <thead>
             <tr>
-              <th>customer</th>
-              <th>mobile</th>
-              <th>orders</th>
-              <th>action</th>
-              <th class="th-blocked">Blocked</th>
+              <th>sno</th>
+              <th>category name</th>
+              <th>sales</th>
+              <th>stock</th>
+              <th>added</th>
+              <th>list / unlist</th>
+              <th>edit</th>
             </tr>
           </thead>
           <tbody>
 
-            <% if (customers && customers.length > 0) { %>
-              <% customers.forEach(function(c) { %>
+            <% if (categories && categories.length > 0) { %>
+              <% categories.forEach(function(cat, index) { %>
                 <tr>
+                  <td class="td-muted"><%= (currentPage - 1) * limit + index + 1 %></td>
+                  <td class="td-name"><%= cat.name %></td>
+                  <td class="td-muted"><%= (cat.sales || 0).toLocaleString() %></td>
+                  <td class="td-muted"><%= cat.stock || 0 %></td>
+                  <td class="td-muted">
+                    <%= new Date(cat.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                  </td>
                   <td>
-                    <div class="td-info">
-                      <span class="td-name"><%= c.firstname %> <%= c.lastname %></span>
-                      <span class="td-email"><%= c.email %></span>
+                    <div class="toggle-wrap">
+                      <span class="toggle-label <%= cat.isListed ? 'unlisted' : 'listed' %>">
+                        <%= cat.isListed ? 'UNLIST' : 'LIST' %>
+                      </span>
+                      <label class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          <%= cat.isListed ? 'checked' : '' %>
+                          onchange="toggleCategory('<%= cat._id %>', this)"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
                     </div>
                   </td>
-                  <td class="td-muted"><%= c.phone || '—' %></td>
-                  <td class="td-muted"><%= c.orderHistory ? c.orderHistory.length : 0 %></td>
                   <td>
-                    <% if (c.isBlocked) { %>
+                    <div class="td-actions">
+                      <a href="/admin/categories/edit/<%= cat._id %>" class="btn-icon" title="Edit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </a>
                       <button
-                        class="tog-btn tog-unblock"
-                        onclick="openModal('<%= c._id %>', 'unblock', '<%= c.firstname %> <%= c.lastname %>')"
+                        class="btn-icon delete" title="Delete"
+                        onclick="openDeleteModal('<%= cat._id %>', '<%= cat.name %>')"
                       >
-                        Unblock
-                        <span class="tog-track off"><span class="tog-thumb"></span></span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                          <path d="M10 11v6"/><path d="M14 11v6"/>
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
                       </button>
-                    <% } else { %>
-                      <button
-                        class="tog-btn tog-block"
-                        onclick="openModal('<%= c._id %>', 'block', '<%= c.firstname %> <%= c.lastname %>')"
-                      >
-                        block
-                        <span class="tog-track on"><span class="tog-thumb"></span></span>
-                      </button>
-                    <% } %>
-                  </td>
-                  <td>
-                    <span class="badge <%= c.isBlocked ? 'badge-block' : 'badge-active' %>">
-                      <%= c.isBlocked ? 'Blocked' : 'Active' %>
-                    </span>
+                    </div>
                   </td>
                 </tr>
               <% }); %>
             <% } else { %>
               <tr>
-                <td colspan="5" class="empty">
+                <td colspan="7" class="empty">
                   <div class="empty-inner">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                      <circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      <path d="M4 6h16M4 12h16M4 18h7"/>
                     </svg>
-                    <p>No customers found<% if (search) { %> for "<strong><%= search %></strong>"<% } %></p>
+                    <p>No categories found<% if (search) { %> for "<strong><%= search %></strong>"<% } %></p>
                     <% if (search) { %>
-                      <a href="/admin/customers" class="clear-btn">Clear Search</a>
+                      <a href="/admin/categories" class="clear-btn">Clear Search</a>
                     <% } %>
                   </div>
                 </td>
@@ -503,12 +536,12 @@
         <% if (totalPages > 1) { %>
           <div class="pag-row">
             <span class="pag-info">
-              Showing <%= (currentPage - 1) * limit + 1 %>–<%= Math.min(currentPage * limit, totalCustomers) %> from <%= totalCustomers %>
+              Showing <%= (currentPage - 1) * limit + 1 %>–<%= Math.min(currentPage * limit, totalCategories) %> from <%= totalCategories %>
             </span>
             <div class="pag-controls">
 
               <% if (currentPage > 1) { %>
-                <a href="/admin/customers?page=<%= currentPage-1 %>&search=<%= search||'' %>&status=<%= status||'' %>&sort=<%= sort||'' %>" class="pg arrow">‹</a>
+                <a href="/admin/categories?page=<%= currentPage-1 %>&search=<%= search||'' %>&sort=<%= sort||'' %>" class="pg arrow">‹</a>
               <% } else { %>
                 <span class="pg arrow disabled">‹</span>
               <% } %>
@@ -518,7 +551,7 @@
                 let e = Math.min(totalPages, currentPage + 2);
               %>
               <% if (s > 1) { %>
-                <a href="/admin/customers?page=1&search=<%= search||'' %>&status=<%= status||'' %>&sort=<%= sort||'' %>" class="pg">1</a>
+                <a href="/admin/categories?page=1&search=<%= search||'' %>&sort=<%= sort||'' %>" class="pg">1</a>
                 <% if (s > 2) { %><span class="pag-dots">…</span><% } %>
               <% } %>
 
@@ -526,17 +559,17 @@
                 <% if (i === currentPage) { %>
                   <span class="pg current"><%= i %></span>
                 <% } else { %>
-                  <a href="/admin/customers?page=<%= i %>&search=<%= search||'' %>&status=<%= status||'' %>&sort=<%= sort||'' %>" class="pg"><%= i %></a>
+                  <a href="/admin/categories?page=<%= i %>&search=<%= search||'' %>&sort=<%= sort||'' %>" class="pg"><%= i %></a>
                 <% } %>
               <% } %>
 
               <% if (e < totalPages) { %>
                 <% if (e < totalPages - 1) { %><span class="pag-dots">…</span><% } %>
-                <a href="/admin/customers?page=<%= totalPages %>&search=<%= search||'' %>&status=<%= status||'' %>&sort=<%= sort||'' %>" class="pg"><%= totalPages %></a>
+                <a href="/admin/categories?page=<%= totalPages %>&search=<%= search||'' %>&sort=<%= sort||'' %>" class="pg"><%= totalPages %></a>
               <% } %>
 
               <% if (currentPage < totalPages) { %>
-                <a href="/admin/customers?page=<%= currentPage+1 %>&search=<%= search||'' %>&status=<%= status||'' %>&sort=<%= sort||'' %>" class="pg arrow">›</a>
+                <a href="/admin/categories?page=<%= currentPage+1 %>&search=<%= search||'' %>&sort=<%= sort||'' %>" class="pg arrow">›</a>
               <% } else { %>
                 <span class="pg arrow disabled">›</span>
               <% } %>
@@ -552,16 +585,16 @@
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     CONFIRMATION MODAL
+     DELETE CONFIRMATION MODAL
 ════════════════════════════════════════════════════════════════ -->
 <div id="modal" class="modal-bg">
   <div class="modal-box">
-    <div class="modal-icon" id="mIcon"></div>
-    <h3 class="modal-title" id="mTitle">Confirm</h3>
-    <p  class="modal-msg"   id="mMsg"></p>
+    <div class="modal-icon">🗑️</div>
+    <h3 class="modal-title">Delete Category?</h3>
+    <p class="modal-msg" id="mMsg"></p>
     <div class="modal-btns">
       <button class="modal-btn m-cancel"  onclick="closeModal()">Cancel</button>
-      <button class="modal-btn m-confirm" id="mConfirm">Confirm</button>
+      <button class="modal-btn m-confirm" id="mConfirm">Delete</button>
     </div>
   </div>
 </div>
@@ -573,41 +606,47 @@
     if (e.key === 'Enter') { e.preventDefault(); document.getElementById('filterForm').submit(); }
   });
 
-  /* Modal state */
-  let _id = null, _action = null;
+  /* ── Toggle list/unlist ── */
+  function toggleCategory(id, checkbox) {
+    const isListed = checkbox.checked;
+    fetch(`/admin/categories/toggle/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isListed })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) location.reload();
+      else { alert('Failed to update'); checkbox.checked = !isListed; }
+    })
+    .catch(() => { alert('Server error'); checkbox.checked = !isListed; });
+  }
 
-  function openModal(id, action, name) {
-    _id = id; _action = action;
-    const isBlock = action === 'block';
+  /* ── Delete modal ── */
+  let _deleteId = null;
 
-    document.getElementById('mIcon').textContent  = isBlock ? '🔒' : '🔓';
-    document.getElementById('mTitle').textContent = isBlock ? 'Block Customer' : 'Unblock Customer';
-    document.getElementById('mMsg').innerHTML     = isBlock
-      ? `Block <strong>${name}</strong>? They won't be able to log in until unblocked.`
-      : `Unblock <strong>${name}</strong>? They will regain full access.`;
-
-    const btn = document.getElementById('mConfirm');
-    btn.textContent = isBlock ? 'Yes, Block' : 'Yes, Unblock';
-    btn.className   = isBlock ? 'modal-btn m-confirm' : 'modal-btn m-confirm unblock';
-    btn.onclick     = doToggle;
-
+  function openDeleteModal(id, name) {
+    _deleteId = id;
+    document.getElementById('mMsg').innerHTML =
+      `<strong>${name}</strong> will be removed and hidden from the store. This action cannot be undone.`;
     document.getElementById('modal').classList.add('open');
   }
 
   function closeModal() {
     document.getElementById('modal').classList.remove('open');
-    _id = _action = null;
+    _deleteId = null;
   }
 
-  async function doToggle() {
-    const btn = document.getElementById('mConfirm');
+  document.getElementById('mConfirm').addEventListener('click', async function() {
+    if (!_deleteId) return;
+    const btn = this;
     btn.disabled = true;
-    btn.textContent = 'Processing…';
+    btn.textContent = 'Deleting…';
 
     try {
-      const res  = await fetch(`/admin/customers/${_id}/${_action}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      const res  = await fetch(`/admin/categories/delete/${_deleteId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
       });
       const data = await res.json();
 
@@ -615,15 +654,16 @@
         closeModal();
         location.reload();
       } else {
-        alert(data.message || 'Something went wrong.');
+        alert(data.message || 'Delete failed.');
         btn.disabled = false;
-        btn.textContent = _action === 'block' ? 'Yes, Block' : 'Yes, Unblock';
+        btn.textContent = 'Delete';
       }
     } catch (err) {
       alert('Network error. Please try again.');
       btn.disabled = false;
+      btn.textContent = 'Delete';
     }
-  }
+  });
 
   /* Close on overlay click or Escape */
   document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
@@ -639,5 +679,4 @@
 </script>
 
 </body>
-
 </html>

@@ -1,5 +1,12 @@
-const User = require("../../models/userSchema"); 
+const User = require("../../models/userSchema");
 
+const Order = require("../../models/orderSchema"); 
+
+const httpStatus = require("../../constants/httpStatus"); 
+
+
+
+//  Get Customers
 
 const getCustomers = async (req, res) => {
   try {
@@ -7,7 +14,6 @@ const getCustomers = async (req, res) => {
     const LIMIT       = 10;
     const currentPage = Math.max(1, parseInt(page, 10));
 
-   
     const filter = { isAdmin: false };
 
     if (search.trim()) {
@@ -23,16 +29,13 @@ const getCustomers = async (req, res) => {
     if (status === "active")  filter.isBlocked = false;
     if (status === "blocked") filter.isBlocked = true;
 
-    
     const sortMap = {
-      newest: { createdAt: -1 },  
+      newest: { createdAt: -1 },
       oldest: { createdAt:  1 },
       name:   { firstname:  1, lastname: 1 },
-      orders: { "orderHistory.length": -1 }, 
     };
     const sortQuery = sortMap[sort] || sortMap.newest;
 
-    
     const totalCustomers = await User.countDocuments(filter);
     const totalPages     = Math.ceil(totalCustomers / LIMIT);
 
@@ -40,11 +43,10 @@ const getCustomers = async (req, res) => {
       .sort(sortQuery)
       .skip((currentPage - 1) * LIMIT)
       .limit(LIMIT)
-      .populate("orderHistory", "_id")  
+      .populate("orderHistory", "_id")
       .lean();
 
-    
-    res.render("customers", {
+    res.render("admin/customers", {
       customers,
       search,
       status,
@@ -58,11 +60,11 @@ const getCustomers = async (req, res) => {
 
   } catch (err) {
     console.error("getCustomers error:", err);
-    res.status(500).send("Server error");
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
-
+//  Block Customer 
 
 const blockCustomer = async (req, res) => {
   try {
@@ -72,18 +74,24 @@ const blockCustomer = async (req, res) => {
       { new: true }
     );
 
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
-
-   
+    if (!user) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     res.json({ success: true, message: "User blocked successfully" });
   } catch (err) {
     console.error("blockCustomer error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
-
+//  Unblock Customer 
 
 const unblockCustomer = async (req, res) => {
   try {
@@ -93,20 +101,27 @@ const unblockCustomer = async (req, res) => {
       { new: true }
     );
 
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     res.json({ success: true, message: "User unblocked successfully" });
   } catch (err) {
     console.error("unblockCustomer error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
 
 
-module.exports={
-    getCustomers,
-    blockCustomer,
-    unblockCustomer
-}
-
+module.exports = {
+  getCustomers,
+  blockCustomer,
+  unblockCustomer,
+};

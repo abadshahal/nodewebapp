@@ -1,0 +1,420 @@
+<%- include("../partials/user/header") %>
+
+<style>
+/* ===== WISHLIST PAGE — VELORIAN ===== */
+.profile-page {
+  min-height: 100vh;
+  background: var(--navy);
+  padding: 40px 60px;
+}
+.profile-wrap {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* --- SIDEBAR --- */
+.p-sidebar {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: fit-content;
+  position: sticky;
+  top: 80px;
+}
+.p-sidebar-head {
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #0e1c40, #111d3c);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.p-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(37,99,235,0.4);
+  flex-shrink: 0;
+}
+.p-avatar-init {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--blue-accent);
+  border: 2px solid rgba(37,99,235,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.p-sidebar-name { font-size: 15px; font-weight: 600; color: var(--white); font-family: var(--font-body); }
+.p-sidebar-email { font-size: 11px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+.p-nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 20px;
+  font-size: 13px; font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(37,99,235,0.07);
+  transition: background var(--transition), color var(--transition);
+  font-family: var(--font-body);
+}
+.p-nav-item:hover { background: var(--navy-hover); color: var(--off-white); }
+.p-nav-item.active { background: var(--navy-hover); color: var(--white); border-left: 3px solid var(--blue-accent); }
+.p-nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.p-nav-item.logout { color: var(--red); border-bottom: none; }
+.p-nav-item.logout:hover { background: rgba(229,62,62,0.07); }
+
+/* --- MAIN --- */
+.p-main { display: flex; flex-direction: column; gap: 24px; }
+
+.wish-head {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.wish-title {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.02em;
+}
+.wish-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* --- GRID --- */
+.wish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.wish-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition);
+}
+.wish-card:hover { border-color: rgba(37,99,235,0.3); }
+
+.wish-img-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.wish-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.wish-info-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.wish-brand {
+  font-size: 15px; font-weight: 600;
+  color: var(--off-white);
+  font-family: var(--font-body);
+}
+.wish-stars { display: flex; gap: 2px; color: var(--gold); font-size: 13px; }
+
+.wish-price {
+  font-size: 15px; font-weight: 600;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.wish-btn {
+  width: 100%;
+  text-align: center;
+  font-size: 13px; font-weight: 600;
+  padding: 11px 0;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition), background var(--transition);
+}
+.wish-btn.add {
+  background: var(--blue-accent);
+  color: #fff;
+  margin-bottom: 10px;
+}
+.wish-btn.add:hover { opacity: 0.9; }
+.wish-btn.remove {
+  background: var(--red);
+  color: #fff;
+}
+.wish-btn.remove:hover { opacity: 0.88; }
+
+/* --- EMPTY STATE --- */
+.wish-empty {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 60px 24px;
+  text-align: center;
+}
+.wish-empty svg { width: 48px; height: 48px; color: var(--muted); margin: 0 auto 16px; display: block; }
+.wish-empty p { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+
+/* --- FLASH ALERT --- */
+.flash-alert {
+  padding: 12px 18px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+  font-family: var(--font-body);
+}
+.flash-alert.success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: #4ade80; }
+.flash-alert.error   { background: rgba(229,62,62,0.1);  border: 1px solid rgba(229,62,62,0.3);  color: var(--red); }
+
+/* --- BUTTON HELPERS (shared) --- */
+.btn-primary {
+  background: var(--blue-accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+}
+.btn-danger:hover { opacity: 0.88; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+  .profile-page { padding: 24px 16px; }
+  .profile-wrap { grid-template-columns: 1fr; }
+  .p-sidebar { position: static; }
+  .wish-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+</style>
+
+<div class="profile-page">
+  <div class="profile-wrap">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="p-sidebar">
+      <div class="p-sidebar-head">
+        <% if (user.profileImage) { %>
+          <img src="<%= user.profileImage %>?v=<%= Date.now() %>" class="p-avatar" />
+        <% } else { %>
+          <div class="p-avatar-init"><%= (user.firstname || 'U')[0].toUpperCase() %></div>
+        <% } %>
+        <div>
+          <div class="p-sidebar-name"><%= user.firstname %> <%= user.lastname %></div>
+          <div class="p-sidebar-email"><%= user.email %></div>
+        </div>
+      </div>
+      <a href="/profile" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </a>
+      <a href="/orders" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        My Orders
+      </a>
+      <a href="/wishlist" class="p-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        My Wishlist&nbsp;(<%= wishlist ? wishlist.length : 0 %>)
+      </a>
+      <a href="/wallet" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        My Wallet
+      </a>
+      <a href="/reset-password" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="10" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Change Password
+      </a>
+      <a href="/logout" class="p-nav-item logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </a>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="p-main">
+
+      <!-- Flash messages -->
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="flash-alert success">✓ &nbsp;<%= success %></div>
+      <% } %>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="flash-alert error">✕ &nbsp;<%= error %></div>
+      <% } %>
+
+      <div class="wish-head">
+        <div class="wish-title">Wishlist (<%= wishlist ? wishlist.length : 0 %>)</div>
+        <% if (wishlist && wishlist.length > 0) { %>
+          <div class="wish-actions">
+            <button onclick="moveAllToCart()" class="btn-primary" style="font-size:13px;padding:10px 20px;">Move All To Cart</button>
+            <button onclick="emptyWishlist()" class="btn-danger" style="font-size:13px;padding:10px 20px;">Empty my Wishlist</button>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (wishlist && wishlist.length > 0) { %>
+        <div class="wish-grid">
+          <% wishlist.forEach((item) => { %>
+            <div class="wish-card" id="wish-card-<%= item._id %>">
+              <div class="wish-img-wrap">
+                <img src="<%= item.product.image %>" alt="<%= item.product.brand %>" />
+              </div>
+              <div class="wish-info-row">
+                <span class="wish-brand"><%= item.product.brand %></span>
+                <span class="wish-stars">
+                  <% for (let i = 0; i < 5; i++) { %>
+                    <% if (i < Math.round(item.product.rating || 5)) { %>★<% } else { %>☆<% } %>
+                  <% } %>
+                </span>
+              </div>
+              <div class="wish-price">Rs.<%= Number(item.product.price).toLocaleString('en-IN') %></div>
+              <button class="wish-btn add" onclick="addToCart('<%= item.product._id %>', '<%= item.product.variantId %>')">Add To Cart</button>
+              <button class="wish-btn remove" onclick="removeFromWishlist('<%= item._id %>')">Remove</button>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="wish-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <p>Your wishlist is empty.</p>
+          <a href="/" class="btn-primary" style="display:inline-block;font-size:13px;padding:10px 22px;text-decoration:none;">Continue Shopping</a>
+        </div>
+      <% } %>
+
+    </main>
+  </div>
+</div>
+
+<script>
+/* ================================================
+   REMOVE SINGLE ITEM
+   ================================================ */
+async function removeFromWishlist(id) {
+  const result = await Swal.fire({
+    title: 'Remove Item?',
+    text: 'This will remove the item from your wishlist.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e53e3e',
+    cancelButtonColor: '#2563eb',
+    confirmButtonText: 'Yes, remove',
+    background: '#111d3c',
+    color: '#e8eaf0'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res  = await fetch('/wishlist/remove/' + id, { method: 'DELETE' });
+    const data = await res.json();
+
+    if (data.success) {
+      const card = document.getElementById('wish-card-' + id);
+      if (card) card.remove();
+      Swal.fire({ icon: 'success', title: 'Removed!', timer: 1200, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    }
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Network error', text: 'Could not reach the server.', background: '#111d3c', color: '#e8eaf0' });
+  }
+}
+
+/* ================================================
+   ADD SINGLE ITEM TO CART
+   ================================================ */
+async function addToCart(productId,variantId) {
+  try {
+    const res  = await fetch('/cart/add', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ productId,variantId, quantity: 1 })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({ icon: 'success', title: 'Added to Cart!', timer: 1400, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    }
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Network error', text: 'Could not reach the server.', background: '#111d3c', color: '#e8eaf0' });
+  }
+}
+
+/* ================================================
+   MOVE ALL TO CART
+   ================================================ */
+async function moveAllToCart() {
+  try {
+    const res  = await fetch('/wishlist/move-all-to-cart', { method: 'POST' });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({ icon: 'success', title: 'Moved to Cart!', text: data.message, timer: 1600, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' })
+        .then(() => location.reload());
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+    }
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Network error', text: 'Could not reach the server.', background: '#111d3c', color: '#e8eaf0' });
+  }
+}
+
+/* ================================================
+   EMPTY WISHLIST
+   ================================================ */
+function emptyWishlist() {
+  Swal.fire({
+    title: 'Empty Wishlist?',
+    text: 'This will remove all items from your wishlist. This cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e53e3e',
+    cancelButtonColor: '#2563eb',
+    confirmButtonText: 'Yes, empty it',
+    background: '#111d3c',
+    color: '#e8eaf0'
+  }).then(async function(result) {
+    if (result.isConfirmed) {
+      const res  = await fetch('/wishlist/empty', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        Swal.fire({ icon: 'success', title: 'Wishlist Emptied!', timer: 1200, showConfirmButton: false, background: '#111d3c', color: '#e8eaf0' });
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+      }
+    }
+  });
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<%- include("../partials/user/footer") %>

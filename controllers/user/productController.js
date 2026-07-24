@@ -1,5 +1,6 @@
 const Product  = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
+const Wishlist = require("../../models/wishlistSchema");
 
 const ITEMS_PER_PAGE = 9;
 
@@ -78,6 +79,17 @@ const loadShopPage = async (req, res) => {
       .limit(ITEMS_PER_PAGE)
       .lean();
 
+      let wishlistedIds=[];
+
+      if(req.user){
+        const wishlistDoc=await Wishlist.findOne({userId:req.user.id});
+
+        if(wishlistDoc){
+          wishlistedIds=wishlistDoc.products.map(item=>item.productId.toString())
+        }
+      }
+
+
     // sidebar data
     const categories = await Category.find({ isListed: true }).lean();
     const brands = await Product.distinct("brand", {
@@ -94,6 +106,7 @@ const loadShopPage = async (req, res) => {
       totalProducts,
       totalPages,
       currentPage,
+      wishlistedIds,
      
       filters: { search, category, brand, minPrice, maxPrice, sort },
     });
@@ -144,6 +157,12 @@ const loadProductDetailPage = async (req, res) => {
       .limit(4)
       .lean();
 
+       let isWishlisted = false;
+
+    if (user) {
+      const existing = await Wishlist.findOne({ userId: user.id, "products.productId": id });
+      isWishlisted = !!existing;
+    }
    
     return res.render("user/product-detail", {
       user,
@@ -151,7 +170,8 @@ const loadProductDetailPage = async (req, res) => {
       selectedVariantIndex,
       selectedVariant,
       relatedProducts,
-      filters: {},   // kept for consistency with other user pages
+      filters: {},
+      isWishlisted   // kept for consistency with other user pages
     });
 
   } catch (err) {

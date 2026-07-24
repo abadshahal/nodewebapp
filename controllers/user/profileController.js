@@ -8,6 +8,7 @@ const fs = require("fs");
 const { sendVerificationEmail } = require("../../utils/emailService");
 const { generateOtp, hashOtp } = require("../../utils/otpUtils");
 const httpStatus = require("../../constants/httpStatus");
+const Otp=require("../../models/otp")
 
 // Multer Setup
 
@@ -170,6 +171,8 @@ const sendEmailOtp = async (req, res) => {
     }
 
     const otp = generateOtp();
+   console.log('[SEND] raw otp generated:', otp, typeof otp);
+console.log('[SEND] hashed otp being saved:', hashOtp(otp));
 
     const emailSent = await sendVerificationEmail(newEmail, otp);
     if (!emailSent) {
@@ -179,10 +182,11 @@ const sendEmailOtp = async (req, res) => {
       });
     }
 
-    await User.findByIdAndUpdate(req.user.id, {
-      otp: hashOtp(otp),
-      otpExpiry: Date.now() + 5 * 60 * 1000,
-    });
+await Otp.findOneAndUpdate(
+  { userId: req.user.id },
+  { otp: hashOtp(otp), expiry: new Date(Date.now() + 5 * 60 * 1000) },
+  { upsert: true, new: true }
+);
 
     return res.status(httpStatus.OK).json({ success: true });
   } catch (err) {
@@ -215,14 +219,19 @@ const verifyEmailOtp = async (req, res) => {
       });
     }
 
-    if (Date.now() > user.otpExpiry) {
+
+     const otpDoc = await Otp.findOne({ userId: req.user.id });
+
+    if (!otpDoc || Date.now() > otpDoc.expiry) {
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: "OTP expired. Please request a new one.",
       });
     }
+    
 
-    if (user.otp !== hashOtp(otp)) {
+
+   if (otpDoc.otp !== hashOtp(otp)) {
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: "Invalid OTP",
@@ -241,9 +250,11 @@ const verifyEmailOtp = async (req, res) => {
     }
 
     user.email = newEmail.toLowerCase().trim();
-    user.otp = null;
-    user.otpExpiry = null;
+   
     await user.save();
+
+     await Otp.deleteOne({ userId: req.user.id });
+
 
     return res.status(httpStatus.OK).json({ success: true });
   } catch (err) {

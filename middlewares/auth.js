@@ -23,9 +23,8 @@ const verifyUser = async (req, res, next) => {
   }
 };
 
-const verifyAdmin = (req, res, next) => {
+const verifyAdmin = async (req, res, next) => {
   try {
-   // no cache on admin protected route
     res.set({
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, private",
       "Pragma":        "no-cache",
@@ -38,7 +37,13 @@ const verifyAdmin = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.role !== "admin") return res.redirect("/admin/login");
 
-    req.admin = decoded;
+    const admin = await User.findById(decoded.id);
+    if (!admin || admin.role !== "admin") {
+      res.clearCookie("adminToken");
+      return res.redirect("/admin/login");
+    }
+
+    req.admin = admin;
     next();
   } catch (error) {
     res.clearCookie("adminToken");

@@ -59,20 +59,20 @@ const loadHomepage = async (req, res) => {
 
 
 const forgotPasswordPage = (req, res) => {
-  res.render("user/forgot-password", { error: null, success: null, email: "" });
+  res.render("user/forgot-password", { error: null, success: null, email: "", user: null });
 };
 
 const verifyForgotOtpPage = (req, res) => {
   const email = req.query.email || "";
   if (!email) return res.redirect("/forgot-password");
-  res.render("user/verify-forgot-otp", { email });
+  res.render("user/verify-forgot-otp", { email, user: null });
 };
 
 const resetPasswordPage = (req, res) => {
   const email = req.query.email || "";
   if (!email) return res.redirect("/forgot-password");
   if (!req.cookies.resetToken) return res.redirect("/forgot-password");
-  res.render("user/reset-password", { email });
+  res.render("user/reset-password", { email,user:null});
 };
 
 // ─── Google OAuth ──────────────────────────────────────────────────────────────
@@ -102,7 +102,7 @@ const signup = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email});
     if (existingUser) {
       return res.status(httpStatus.CONFLICT).render("user/signup", {
         message: "User already exists",
@@ -143,7 +143,7 @@ const verifyOtp = async (req, res) => {
       return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "Email and OTP are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email,role:"user" });
     if (!user) {
       return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
     }
@@ -182,7 +182,7 @@ const resendOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "Email required" });
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email,role:"user" });
     if (!user) return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
 
     const otp = generateOtp();
@@ -236,7 +236,7 @@ const forgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "Email is required" });
 
-    const user = await User.findOne({ email, isAdmin: false });
+    const user = await User.findOne({ email, role:"user" });
     if (!user) return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "No account found" });
     if (!user.isVerified) return res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Account not verified" });
     if (user.isBlocked) return res.status(httpStatus.FORBIDDEN).json({ success: false, message: "Account is blocked" });
@@ -265,7 +265,7 @@ const verifyForgotOtp = async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "Email and OTP are required" });
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email ,role:"user"});
     if (!user) return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
 
     const otpRecord = await Otp.findOne({ userId: user._id });
@@ -323,7 +323,7 @@ const resetPassword = async (req, res) => {
 
     if (decoded.email !== email) return res.status(httpStatus.FORBIDDEN).json({ success: false, message: "Email mismatch. Please restart." });
 
-    const user = await User.findOne({ email, isAdmin: false });
+    const user = await User.findOne({ email,role:"user" });
     if (!user) return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
     if (user.isBlocked) return res.status(httpStatus.FORBIDDEN).json({ success: false, message: "Your account has been blocked" });
 
@@ -348,7 +348,7 @@ const resendForgotOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "Email required" });
 
-    const user = await User.findOne({ email, isAdmin: false });
+    const user = await User.findOne({ email, role:"user"});
     if (!user) return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
     if (user.isBlocked) return res.status(httpStatus.FORBIDDEN).json({ success: false, message: "Account is blocked" });
 

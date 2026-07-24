@@ -30,7 +30,7 @@ const getProducts = async (req, res) => {
   try {
     const { search = '', category = '', sort = 'newest', page = 1 } = req.query;
 
-    const limit       = 10;
+    const limit       = 3;
     const currentPage = Math.max(1, parseInt(page) || 1);
     const skip        = (currentPage - 1) * limit;
 

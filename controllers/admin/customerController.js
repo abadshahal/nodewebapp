@@ -14,7 +14,7 @@ const getCustomers = async (req, res) => {
     const LIMIT       = 10;
     const currentPage = Math.max(1, parseInt(page, 10));
 
-    const filter = { isAdmin: false };
+    const filter = { role:"user"};
 
     if (search.trim()) {
       const rx = new RegExp(search.trim(), "i");

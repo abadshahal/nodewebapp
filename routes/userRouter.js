@@ -5,7 +5,6 @@ const authController = require("../controllers/user/authController");
 const { loadShopPage, loadProductDetailPage } = require("../controllers/user/productController");
 const { attachUser, verifyUser } = require("../middlewares/auth");
 
-
 //cart
 const {
   loadCartPage,
@@ -14,6 +13,9 @@ const {
   removeFromCart,
   getCartCount,
 } = require("../controllers/user/cartController");
+
+
+const wishlistController=require("../controllers/user/wishlistController");
 
 
 //home
@@ -57,7 +59,15 @@ router.get("/reset-password", authController.resetPasswordPage);
 router.post("/reset-password", authController.resetPassword);
 router.post("/resend-forgot-otp", authController.resendForgotOtp);
 
+//wishlist
 
+router.post("/wishlist/add",verifyUser,wishlistController.toggleWishlist);
 router.get("/pageNotFound", authController.pageNotFound);
+router.get("/wishlist",verifyUser,wishlistController.getWishlistPage);
+router.delete("/wishlist/remove/:id",verifyUser,wishlistController.removeFromWishlist)
+router.delete("/wishlist/empty",verifyUser,wishlistController.emptyWishlist)
+router.post("/wishlist/move-all-to-cart",verifyUser, wishlistController.moveAllToCart);
+
+
 
 module.exports = router;

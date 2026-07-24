@@ -544,6 +544,12 @@
       background: rgba(229,62,62,0.08);
     }
 
+    .btn-wishlist.active {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(229,62,62,0.08);
+}
+
     .specs-section {
       padding: 56px 0 48px;
       border-top: 1px solid var(--border);
@@ -999,11 +1005,7 @@
               <div class="stock-badge out" id="stockBadge">Out of Stock</div>
             <% } %>
 
-            <button class="gallery-wishlist" id="wishlistBtn" title="Add to Wishlist"
-              data-product-id="<%= product._id %>"
-              data-variant-id="<%= selectedVariant._id %>">
-              <i class="fa-regular fa-heart"></i>
-            </button>
+           
 
             <img
               id="mainImage"
@@ -1156,14 +1158,18 @@
               <i class="fa-solid fa-cart-plus"></i>
               <%= selectedVariant.stock === 0 ? 'Out of Stock' : 'Add to Cart' %>
             </button>
-            <button
-              class="btn-wishlist"
-              id="addToWishlistBtn"
-              data-product-id="<%= product._id %>"
-              data-variant-id="<%= selectedVariant._id %>"
-            >
-              <i class="fa-regular fa-heart"></i> Wishlist
-            </button>
+       <button
+  class="btn-wishlist <%= isWishlisted ? 'active' : '' %>"
+  id="addToWishlistBtn"
+  data-product-id="<%= product._id %>"
+  data-variant-id="<%= selectedVariant._id %>"
+>
+  <% if (isWishlisted) { %>
+    <i class="fa-solid fa-heart"></i> Wishlist
+  <% } else { %>
+    <i class="fa-regular fa-heart"></i> Wishlist
+  <% } %>
+</button>
           </div>
 
         </div>
@@ -1464,7 +1470,7 @@
 
       cartBtn.dataset.variantId = v._id;
       wishBtn.dataset.variantId = v._id;
-      document.getElementById('wishlistBtn').dataset.variantId = v._id;
+     
 
       document.getElementById('colorLabel').textContent = v.color;
       const strapLbl = document.getElementById('strapLabel');
@@ -1606,49 +1612,54 @@
     });
 
    
-    async function handleWishlist(btn) {
-      // Not logged in — show modal
-      if (!isLoggedIn) {
-        showLoginModal();
-        return;
-      }
+async function handleWishlist(btn) {
+  // Not logged in — show modal
+  if (!isLoggedIn) {
+    showLoginModal();
+    return;
+  }
 
-      const variantId = btn.dataset.variantId;
+  const variantId = btn.dataset.variantId;
 
-      try {
-        const res = await fetch('/wishlist/add', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ productId: PRODUCT_ID, variantId }),
-        });
+  try {
+    const res = await fetch('/wishlist/add', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ productId: PRODUCT_ID, variantId }),
+    });
 
-        if (res.status === 401) {
-          showLoginModal();
-          return;
-        }
-
-        const data = await res.json().catch(() => ({}));
-
-        if (res.ok) {
-          btn.classList.add('active');
-          const ico = btn.querySelector('i');
-          if (ico) { ico.classList.remove('fa-regular'); ico.classList.add('fa-solid'); }
-          showToast('Added to wishlist!', 'success');
-          return;
-        }
-
-        showToast(data.message || 'Could not add to wishlist.', 'error');
-      } catch (_) {
-        showToast('Network error. Please try again.', 'error');
-      }
+    if (res.status === 401) {
+      showLoginModal();
+      return;
     }
 
-    document.getElementById('wishlistBtn').addEventListener('click', function() {
-      handleWishlist(document.getElementById('wishlistBtn'));
-    });
-    document.getElementById('addToWishlistBtn').addEventListener('click', function() {
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      const ico = btn.querySelector('i');
+
+      if (data.action === 'added') {
+        btn.classList.add('active');
+        if (ico) { ico.classList.remove('fa-regular'); ico.classList.add('fa-solid'); }
+        showToast('Added to wishlist!', 'success');
+      } else if (data.action === 'removed') {
+        btn.classList.remove('active');
+        if (ico) { ico.classList.remove('fa-solid'); ico.classList.add('fa-regular'); }
+        showToast('Removed from wishlist.', 'success');
+      }
+      return;
+    }
+
+    showToast(data.message || 'Could not update wishlist.', 'error');
+  } catch (_) {
+    showToast('Network error. Please try again.', 'error');
+  }
+}
+
+       document.getElementById('addToWishlistBtn').addEventListener('click', function() {
       handleWishlist(document.getElementById('addToWishlistBtn'));
     });
+  
 
     /* ══════════════════════════════════════════════════
        MOBILE HAMBURGER

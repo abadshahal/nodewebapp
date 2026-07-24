@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
 /* =============================================
    VELORIAN — LUXURY WATCH STORE STYLESHEET
@@ -451,6 +452,29 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   transition: transform var(--transition);
 }
 .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+
+.wishlist-icon-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 3;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: rgba(17,29,60,0.85);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  backdrop-filter: blur(4px);
+}
+.wishlist-icon-btn:hover,
+.wishlist-icon-btn.active {
+  color: var(--red);
+  border-color: var(--red);
+  background: rgba(229,62,62,0.15);
+}
 
 .watch-placeholder {
   width: 90px; height: 90px;
@@ -899,15 +923,28 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
             <div class="product-badge sale">Sale</div>
           <% } %>
 
-          <a href="/shop/<%= product._id %>">
-            <div class="product-img-wrap">
+          <div class="product-img-wrap" style="position:relative;">
+            <button
+              class="wishlist-icon-btn"
+              data-product-id="<%= product._id %>"
+              data-variant-id="<%= variantId %>"
+              aria-label="Toggle wishlist"
+            >
+             <% if (wishlistedIds.includes(product._id.toString())) { %>
+    <i class="fa-solid fa-heart"></i>
+  <% } else { %>
+    <i class="fa-regular fa-heart"></i>
+  <% } %>
+             
+            </button>
+            <a href="/shop/<%= product._id %>">
               <% if (img) { %>
                 <img src="<%= img %>" alt="<%= product.name %>" loading="lazy" />
               <% } else { %>
                 <div class="watch-placeholder dark">⌚</div>
               <% } %>
-            </div>
-          </a>
+            </a>
+          </div>
 
           <div class="product-info">
             <p class="product-name"><%= product.name %></p>
@@ -1127,6 +1164,57 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
         }
 
         showToast(data.message || "Could not add to cart.", "error");
+
+      } catch (_) {
+        showToast("Network error. Please try again.", "error");
+      }
+    });
+  });
+
+ /* ── WISHLIST TOGGLE ── */
+  document.querySelectorAll(".wishlist-icon-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Not logged in — show modal
+      if (!isLoggedIn) {
+        loginModal.style.display = "block";
+        return;
+      }
+
+      const productId = btn.dataset.productId;
+      const variantId = btn.dataset.variantId;
+
+      try {
+        const res = await fetch("/wishlist/add", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ productId, variantId }),
+        });
+
+        if (res.status === 401) {
+          loginModal.style.display = "block";
+          return;
+        }
+
+        const data = await res.json().catch(() => ({}));
+        const icon = btn.querySelector("i");
+
+        if (res.ok) {
+          if (data.action === "added") {
+            btn.classList.add("active");
+            if (icon) { icon.classList.remove("fa-regular"); icon.classList.add("fa-solid"); }
+            showToast("Added to wishlist!", "success");
+          } else if (data.action === "removed") {
+            btn.classList.remove("active");
+            if (icon) { icon.classList.remove("fa-solid"); icon.classList.add("fa-regular"); }
+            showToast("Removed from wishlist.", "success");
+          }
+          return;
+        }
+
+        showToast(data.message || "Could not update wishlist.", "error");
 
       } catch (_) {
         showToast("Network error. Please try again.", "error");

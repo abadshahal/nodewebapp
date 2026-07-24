@@ -3,6 +3,7 @@ const Wishlist = require("../../models/wishlistSchema");
 const Product  = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const httpStatus = require("../../constants/httpStatus");
+const User = require("../../models/userSchema");
 
 const MAX_QTY_PER_ITEM = 5;
 
@@ -342,3 +343,10 @@ module.exports = {
   removeFromCart,
   getCartCount,
 };
+
+
+
+
+
+
+

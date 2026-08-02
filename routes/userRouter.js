@@ -16,6 +16,7 @@ const {
 
 
 const wishlistController=require("../controllers/user/wishlistController");
+const checkoutController=require("../controllers/user/checkoutController")
 
 
 //home
@@ -68,6 +69,11 @@ router.delete("/wishlist/remove/:id",verifyUser,wishlistController.removeFromWis
 router.delete("/wishlist/empty",verifyUser,wishlistController.emptyWishlist)
 router.post("/wishlist/move-all-to-cart",verifyUser, wishlistController.moveAllToCart);
 
+router.get("/checkout", verifyUser,checkoutController.getCheckoutPage);
+router.post("/checkout/place-order",verifyUser, checkoutController.placeOrder);
+router.get("/checkout/success/:orderId", verifyUser,checkoutController.getOrderSuccess);
+
+router.get("/order-success/:orderId",verifyUser,checkoutController.getOrderSuccess);
 
 
 module.exports = router;

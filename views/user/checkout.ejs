@@ -1,0 +1,461 @@
+<%- include("../partials/user/header") %>
+
+<style>
+/* ===== CHECKOUT PAGE — VELORIAN ===== */
+.checkout-page {
+  min-height: 100vh;
+  background: var(--navy);
+  padding: 40px 60px;
+}
+.checkout-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.checkout-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.03em;
+  margin-bottom: 32px;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* --- SECTION CARD --- */
+.co-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.co-card-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.co-card-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.co-card-body { padding: 20px 24px; }
+
+/* --- ADDRESS LIST --- */
+.addr-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.addr-option:hover { border-color: rgba(37,99,235,0.4); }
+.addr-option.selected {
+  border-color: var(--blue-accent);
+  background: rgba(37,99,235,0.06);
+}
+.addr-option input[type="radio"] {
+  margin-top: 3px;
+  accent-color: var(--blue-accent);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.addr-option-body { flex: 1; }
+.addr-option-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.addr-option-name { font-size: 14px; font-weight: 600; color: var(--off-white); }
+.addr-option-type {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--blue-glow);
+  background: rgba(37,99,235,0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.addr-option-default {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4ade80;
+  background: rgba(74,222,128,0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.addr-option-text { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+.addr-empty {
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.btn-add-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--off-white);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+}
+.btn-add-address:hover { border-color: var(--blue-accent); color: var(--blue-glow); }
+
+/* --- PAYMENT METHODS --- */
+.pay-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), opacity var(--transition);
+}
+.pay-option input[type="radio"] {
+  accent-color: var(--blue-accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.pay-option span { font-size: 14px; color: var(--off-white); font-weight: 500; }
+.pay-option.active { border-color: var(--blue-accent); background: rgba(37,99,235,0.06); }
+.pay-option.disabled { opacity: 0.4; cursor: not-allowed; }
+.pay-option.disabled input { cursor: not-allowed; }
+.pay-option-tag {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--navy-mid);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* --- ORDER ITEMS --- */
+.co-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(37,99,235,0.08);
+}
+.co-item:last-child { border-bottom: none; }
+.co-item-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--navy-mid);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.co-item-img img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.co-item-info { flex: 1; min-width: 0; }
+.co-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--off-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.co-item-qty { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.co-item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* --- SUMMARY --- */
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.summary-row.total {
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+  padding-top: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+}
+.summary-row .val { color: var(--off-white); font-weight: 600; }
+.summary-row.total .val { color: var(--white); }
+.summary-row .free-tag { color: #4ade80; font-weight: 600; }
+
+.btn-place-order {
+  width: 100%;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-family: var(--font-body);
+  cursor: pointer;
+  margin-top: 20px;
+  transition: opacity var(--transition), transform var(--transition);
+}
+.btn-place-order:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.btn-place-order:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.checkout-empty {
+  text-align: center;
+  padding: 60px 24px;
+}
+.checkout-empty p { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+
+@media (max-width: 900px) {
+  .checkout-page { padding: 24px 16px; }
+  .checkout-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="checkout-page">
+  <div class="checkout-wrap">
+
+    <h1 class="checkout-title">Checkout</h1>
+
+    <% if (!cartItems || cartItems.length === 0) { %>
+
+      <div class="co-card">
+        <div class="checkout-empty">
+          <p>Your cart is empty. Add some items before checking out.</p>
+          <a href="/shop" class="btn-primary" style="display:inline-block;text-decoration:none;padding:10px 22px;">Continue Shopping</a>
+        </div>
+      </div>
+
+    <% } else { %>
+
+    <form id="checkoutForm">
+      <div class="checkout-grid">
+
+        <!-- ===== LEFT: ADDRESS + PAYMENT ===== -->
+        <div>
+
+          <!-- Delivery Address -->
+          <div class="co-card">
+            <div class="co-card-head">
+              <span class="co-card-title">Delivery Address</span>
+            </div>
+            <div class="co-card-body">
+
+              <% if (addresses && addresses.length > 0) { %>
+                <% addresses.forEach(function(addr) { %>
+                  <label class="addr-option <%= addr.isDefault ? 'selected' : '' %>" data-addr-id="<%= addr._id %>">
+                    <input
+                      type="radio"
+                      name="addressId"
+                      value="<%= addr._id %>"
+                      <%= addr.isDefault ? 'checked' : '' %>
+                    />
+                    <div class="addr-option-body">
+                      <div class="addr-option-top">
+                        <span class="addr-option-name"><%= addr.fullName %></span>
+                        <span class="addr-option-type"><%= addr.type %></span>
+                        <% if (addr.isDefault) { %>
+                          <span class="addr-option-default">Default</span>
+                        <% } %>
+                      </div>
+                      <div class="addr-option-text">
+                        <%= addr.street %>, <%= addr.city %>, <%= addr.state %> — <%= addr.pincode %><br/>
+                        <%= addr.country %> &nbsp;·&nbsp; Contact: +91 <%= addr.phone %>
+                      </div>
+                    </div>
+                  </label>
+                <% }) %>
+              <% } else { %>
+                <div class="addr-empty">No saved addresses yet. Add one to continue.</div>
+              <% } %>
+
+              <a href="/profile" class="btn-add-address" style="text-decoration:none;">
+                + Add New Address
+              </a>
+
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="co-card">
+            <div class="co-card-head">
+              <span class="co-card-title">Payment Method</span>
+            </div>
+            <div class="co-card-body">
+
+              <label class="pay-option disabled">
+                <input type="radio" name="paymentMethod" value="razorpay" disabled />
+                <span>RazorPay</span>
+                <span class="pay-option-tag">Coming Soon</span>
+              </label>
+
+              <label class="pay-option disabled">
+                <input type="radio" name="paymentMethod" value="wallet" disabled />
+                <span>Wallet Pay</span>
+                <span class="pay-option-tag">Coming Soon</span>
+              </label>
+
+              <label class="pay-option active" id="codOption">
+                <input type="radio" name="paymentMethod" value="cod" checked />
+                <span>Cash on Delivery</span>
+              </label>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== RIGHT: ORDER SUMMARY ===== -->
+        <div>
+          <div class="co-card">
+            <div class="co-card-head">
+              <span class="co-card-title">Order Summary</span>
+            </div>
+            <div class="co-card-body">
+
+              <% cartItems.forEach(function(item) { %>
+                <div class="co-item">
+                  <div class="co-item-img">
+                    <img src="<%= item.image %>" alt="<%= item.name %>" />
+                  </div>
+                  <div class="co-item-info">
+                    <div class="co-item-name"><%= item.name %></div>
+                    <div class="co-item-qty">Qty: <%= item.quantity %></div>
+                  </div>
+                  <div class="co-item-price">₹<%= item.totalPrice.toLocaleString('en-IN') %></div>
+                </div>
+              <% }) %>
+
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span class="val">₹<%= subtotal.toLocaleString('en-IN') %></span>
+              </div>
+              <div class="summary-row">
+                <span>Tax (18%)</span>
+                <span class="val">₹<%= tax.toLocaleString('en-IN') %></span>
+              </div>
+              <div class="summary-row">
+                <span>Shipping</span>
+                <span class="free-tag">Free</span>
+              </div>
+              <div class="summary-row total">
+                <span>Total</span>
+                <span class="val">₹<%= total.toLocaleString('en-IN') %></span>
+              </div>
+
+              <button type="submit" class="btn-place-order" id="placeOrderBtn" <%= (!addresses || addresses.length === 0) ? 'disabled' : '' %>>
+                Place Order
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+    <% } %>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+/* ── Highlight selected address on click ── */
+document.querySelectorAll('.addr-option').forEach(function(opt) {
+  opt.addEventListener('click', function() {
+    document.querySelectorAll('.addr-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    opt.querySelector('input[type="radio"]').checked = true;
+  });
+});
+
+/* ── Place Order submit ── */
+const checkoutForm = document.getElementById('checkoutForm');
+if (checkoutForm) {
+  checkoutForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const addressId = document.querySelector('input[name="addressId"]:checked')?.value;
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+
+    if (!addressId) {
+      return Swal.fire({ icon: 'warning', title: 'Select an address', background: '#111d3c', color: '#e8eaf0' });
+    }
+
+    const btn = document.getElementById('placeOrderBtn');
+    btn.textContent = 'Placing Order…';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/checkout/place-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addressId, paymentMethod }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        window.location.href = '/order-success/' + data.orderId;
+      } else {
+        Swal.fire({ icon: 'error', title: 'Could not place order', text: data.message, background: '#111d3c', color: '#e8eaf0', confirmButtonColor: '#2563eb' });
+        btn.textContent = 'Place Order';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Network error', text: 'Could not reach the server.', background: '#111d3c', color: '#e8eaf0' });
+      btn.textContent = 'Place Order';
+      btn.disabled = false;
+    }
+  });
+}
+</script>
+
+<%- include("../partials/user/footer") %>

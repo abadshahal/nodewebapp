@@ -1,0 +1,130 @@
+<%- include("../partials/user/header") %>
+
+<style>
+  .success-wrap {
+    background: #0a0e27;
+    color: #fff;
+    padding: 80px;
+    font-family: 'Poppins', Arial, sans-serif;
+  }
+  .success-grid {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .success-left { flex: 1.2; }
+  .success-left h1 { font-size: 32px; font-weight: 500; margin-bottom: 10px; }
+  .success-left p.sub { color: #9aa3c7; font-size: 15px; margin-bottom: 40px; }
+
+  .success-illustration {
+    width: 100%; max-width: 340px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 30px;
+  }
+  .success-illustration svg { width: 100%; height: auto; }
+
+  .delivery-note { color: #9aa3c7; font-size: 14px; margin-bottom: 6px; }
+  .delivery-date { color: #4ade80; font-size: 16px; font-weight: 500; margin-bottom: 30px; }
+
+  .success-actions { display: flex; gap: 14px; }
+  .btn-view-orders {
+    background: #4a7dff; color: #fff; border: none;
+    padding: 13px 28px; font-size: 14px; cursor: pointer; text-decoration: none;
+    display: inline-block; border-radius: 2px;
+  }
+  .btn-continue-shopping {
+    background: transparent; color: #fff; border: 1px solid #fff;
+    padding: 13px 28px; font-size: 14px; cursor: pointer; text-decoration: none;
+    display: inline-block; border-radius: 2px;
+  }
+
+  .payment-card {
+    flex: 1;
+    background: #111a3d;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+  }
+  .payment-check {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #16a34a; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .payment-check svg { width: 26px; height: 26px; }
+  .payment-card h2 { font-size: 22px; font-weight: 500; margin-bottom: 24px; }
+  .payment-divider { border: none; border-top: 1px solid #2a2f4a; margin-bottom: 24px; }
+
+  .payment-row {
+    display: flex; justify-content: space-between;
+    font-size: 15px; padding: 10px 0;
+    text-align: left;
+  }
+  .payment-row.dashed { border-bottom: 1px dashed #2a2f4a; margin-bottom: 10px; padding-bottom: 16px; }
+  .payment-row .label { color: #9aa3c7; }
+
+  @media (max-width: 900px) {
+    .success-wrap { padding: 30px 20px; }
+    .success-grid { flex-direction: column; }
+  }
+</style>
+
+<div class="success-wrap">
+  <div class="success-grid">
+
+    <!-- LEFT: message + illustration + actions -->
+    <div class="success-left">
+      <h1>Thank You for Your Order!</h1>
+      <p class="sub">Your order has been successfully placed. Here are your order details:</p>
+
+      <div class="success-illustration">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="90" fill="#111a3d"/>
+          <rect x="55" y="55" width="90" height="110" rx="8" fill="#4a7dff" opacity="0.15"/>
+          <rect x="65" y="70" width="70" height="80" rx="4" fill="#4a7dff" opacity="0.3"/>
+          <path d="M85 100l10 10 20-22" stroke="#4ade80" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="140" cy="65" r="18" fill="#facc15"/>
+          <path d="M133 65l5 5 9-10" stroke="#111a3d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+
+      <p class="delivery-note">You will receive an email confirmation shortly with the details of your order.</p>
+      <% if (order.invoiceDate) { %>
+        <p class="delivery-date">Delivery Expected by <%= new Date(order.invoiceDate).toLocaleDateString('en-IN') %></p>
+      <% } %>
+
+      <div class="success-actions">
+        <a href="/orders" class="btn-view-orders">View Orders</a>
+        <a href="/home" class="btn-continue-shopping">CONTINUE SHOPPING</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: payment success card -->
+    <div class="payment-card">
+      <div class="payment-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2>Payment Success!</h2>
+      <hr class="payment-divider">
+
+      <div class="payment-row dashed">
+        <span class="label">Order Id</span>
+        <span><%= order.orderId %></span>
+      </div>
+      <div class="payment-row dashed">
+        <span class="label">Payment Method</span>
+        <span>Cash on Delivery</span>
+      </div>
+      <div class="payment-row">
+        <span class="label">Amount</span>
+        <span>₹<%= order.finalAmount.toLocaleString('en-IN') %></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include("../partials/user/footer") %>

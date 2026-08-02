@@ -1465,6 +1465,13 @@
         window.location.href = '/shop?search=' + encodeURIComponent(this.value.trim());
       }
     });
+
+    /* Force a fresh server request on back/forward navigation (bfcache restore) */
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted || (window.performance && window.performance.navigation.type === 2)) {
+    window.location.reload();
+  }
+});
   </script>
 </body>
 </html>

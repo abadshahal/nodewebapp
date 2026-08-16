@@ -128,3 +128,12 @@
 </div>
 
 <%- include("../partials/user/footer") %>
+<!-- in order-success view -->
+<script>
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      // page was restored from bfcache — force a fresh load
+      window.location.reload();
+    }
+  });
+</script>

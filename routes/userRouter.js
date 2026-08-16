@@ -17,6 +17,7 @@ const {
 
 const wishlistController=require("../controllers/user/wishlistController");
 const checkoutController=require("../controllers/user/checkoutController")
+const orderController=require("../controllers/user/orderController");
 
 
 //home
@@ -75,5 +76,17 @@ router.get("/checkout/success/:orderId", verifyUser,checkoutController.getOrderS
 
 router.get("/order-success/:orderId",verifyUser,checkoutController.getOrderSuccess);
 
+//order detail
+router.get("/order-details/:orderId", verifyUser, orderController.getOrderDetail);
+
+//get my orders
+router.get("/orders", verifyUser, orderController.getMyOrders);
+//order cancel
+router.post("/order-cancel/:orderId", verifyUser, orderController.cancelOrder);
+//cancel per item
+router.post("/order-item-cancel/:orderId/:itemId", verifyUser, orderController.cancelOrderItem);
+//return orerder
+router.post("/order-return/:orderId", verifyUser, orderController.returnOrder);
+router.get("/order-invoice/:orderId", verifyUser, orderController.downloadInvoice);
 
 module.exports = router;

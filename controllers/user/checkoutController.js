@@ -175,7 +175,7 @@ const placeOrder=async(req,res)=>{
         if(!addressId||!paymentMethod){
             await session.abortTransaction()
             session.endSession()
-            return res.status(httpStatus.BAD_REQUEST).json({success:"false",message:"invalid request"})
+            return res.status(httpStatus.BAD_REQUEST).json({success:false,message:"invalid request"})
         }
 
          const cart=await Cart.findOne({userId}).session(session)
@@ -273,7 +273,7 @@ for(const item of orderedItems){
      "variants.stock":{$gte:item.quantity},
 
     },
-    {$inc:{"variants.$.stock":-item.quantity},},{session}
+    {$inc:{"variants.$.stock":-item.quantity,totalStock: -item.quantity},},{session}
 )
 
 if(!result){
@@ -318,9 +318,9 @@ const getOrderSuccess = async (req, res) => {
 
     const order = await Order.findOne({ _id: orderId, user: userId });
 
-    if (!order) {
-      return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: "Order not found" });
-    }
+  if (!order) {
+  return res.redirect("/orders");
+}
 
     return res.render("user/order-success", {   user: req.user,order });
 
@@ -330,8 +330,11 @@ const getOrderSuccess = async (req, res) => {
   }
 };
 
+
+
 module.exports={
     getCheckoutPage,
     placeOrder,
     getOrderSuccess,
+  
 }

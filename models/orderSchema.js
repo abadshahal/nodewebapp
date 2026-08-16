@@ -24,7 +24,9 @@ const orderSchema = new Schema({
             required: true
         },
         quantity: { type: Number, required: true },
-        price:    { type: Number, default: 0 }
+        price:    { type: Number, default: 0 },
+         isCancelled: { type: Boolean, default: false },  
+    cancelReason: { type: String, default: null },
     }],
     totalPrice:   { type: Number, required: true },
     discount:     { type: Number, default: 0 },
@@ -40,12 +42,15 @@ const orderSchema = new Schema({
         enum: ["cod", "razorpay", "wallet"]
     },
     invoiceDate:  { type: Date },
+    createdOn:     { type: Date, default: Date.now, required: true },
     status: {
         type: String,
         required: true,
         enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"],
         default: "Pending"
     },
+    cancelReason: { type: String, default: null },  
+    returnReason: { type: String, default: null }, 
     createdOn:     { type: Date, default: Date.now, required: true },
     couponApplied: { type: Boolean, default: false }
 });

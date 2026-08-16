@@ -5,7 +5,7 @@ const httpStatus = require("../../constants/httpStatus");
 
 const getAddAddress = async (req, res) => {
   try {
-    res.render("add-address", { user: req.user });
+    res.render("user/add-address", { user: req.user });
   } catch (err) {
     console.error("getAddAddress error:", err);
     res.redirect("/pageNotFound");
@@ -101,9 +101,9 @@ const getEditAddress = async (req, res) => {
 
     if (!address) return res.redirect("/profile");
 
-    res.render("edit-address", { user: req.user, address });
-  } catch (err) {
-    console.error("getEditAddress error:", err);
+    res.render("user/edit-address", { user: req.user, address });
+  } catch (error) {
+    console.error("getEditAddress error:", error);
     res.redirect("/pageNotFound");
   }
 };

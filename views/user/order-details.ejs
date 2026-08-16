@@ -1,0 +1,395 @@
+<%- include("../partials/user/header") %>
+
+<style>
+/* Reuse the same page/sidebar shell as profile.ejs / orders.ejs */
+.profile-page { min-height: 100vh; background: var(--navy); padding: 40px 60px; }
+.profile-wrap { display: grid; grid-template-columns: 260px 1fr; gap: 24px; max-width: 1200px; margin: 0 auto; }
+
+.p-sidebar { background: var(--navy-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: fit-content; position: sticky; top: 80px; }
+.p-sidebar-head { padding: 24px 20px; background: linear-gradient(135deg, #0e1c40, #111d3c); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+.p-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(37,99,235,0.4); flex-shrink: 0; }
+.p-avatar-init { width: 52px; height: 52px; border-radius: 50%; background: var(--blue-accent); border: 2px solid rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.p-sidebar-name { font-size: 15px; font-weight: 600; color: var(--white); font-family: var(--font-body); }
+.p-sidebar-email { font-size: 11px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+.p-nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 20px; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(37,99,235,0.07); transition: background var(--transition), color var(--transition); font-family: var(--font-body); }
+.p-nav-item:hover { background: var(--navy-hover); color: var(--off-white); }
+.p-nav-item.active { background: var(--navy-hover); color: var(--white); border-left: 3px solid var(--blue-accent); }
+.p-nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.p-nav-item.logout { color: var(--red); border-bottom: none; }
+.p-nav-item.logout:hover { background: rgba(229,62,62,0.07); }
+
+/* --- ORDER DETAILS CONTENT --- */
+.od-main { display: flex; flex-direction: column; }
+.od-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.od-title { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+.od-meta { font-size: 13px; color: var(--muted); }
+.od-status {
+  padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; height: fit-content;
+}
+.od-status.pending, .od-status.processing { background: rgba(37,99,235,0.15); color: var(--blue-glow); }
+.od-status.shipped { background: rgba(250,204,21,0.15); color: #facc15; }
+.od-status.delivered { background: rgba(74,222,128,0.15); color: #4ade80; }
+.od-status.cancelled, .od-status.returned, .od-status.return-request { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+.od-card { background: var(--navy-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+.od-card h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--white); margin-bottom: 16px; }
+
+.od-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(37,99,235,0.08); }
+.od-item:last-child { border-bottom: none; }
+.od-item-img { width: 64px; height: 64px; border-radius: 8px; overflow: hidden; background: var(--navy-mid); flex-shrink: 0; }
+.od-item-img img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.od-item-info { flex: 1; }
+.od-item-name { font-size: 14px; font-weight: 600; color: var(--off-white); }
+.od-item-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.od-item-price { font-size: 14px; font-weight: 700; color: var(--white); }
+.btn-cancel-item {
+  background: var(--red); color: #fff; border: none; border-radius: 6px;
+  padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: 16px;
+}
+.btn-cancel-item:disabled { opacity: 0.4; cursor: not-allowed; }
+.od-item-cancelled-tag { color: #ef4444; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-left: 16px; }
+
+.od-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.od-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); padding: 6px 0; }
+.od-row .val { color: var(--off-white); font-weight: 600; }
+.od-row.total { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 12px; font-size: 15px; font-weight: 700; color: var(--white); }
+.od-row.total .val { color: var(--white); }
+
+.od-actions { display: flex; gap: 12px; margin-top: 20px; }
+.btn-danger { background: var(--red); color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary-solid { background: var(--blue-accent); color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn-primary-solid:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 900px) {
+  .profile-page { padding: 24px 16px; }
+  .profile-wrap { grid-template-columns: 1fr; }
+  .p-sidebar { position: static; }
+  .od-grid-3 { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="profile-page">
+  <div class="profile-wrap">
+
+    <!-- ===== SIDEBAR (same as profile.ejs / orders.ejs) ===== -->
+    <aside class="p-sidebar">
+      <div class="p-sidebar-head">
+        <% if (user.profileImage) { %>
+          <img src="<%= user.profileImage %>?v=<%= Date.now() %>" class="p-avatar" />
+        <% } else { %>
+          <div class="p-avatar-init"><%= (user.firstname || 'U')[0].toUpperCase() %></div>
+        <% } %>
+        <div>
+          <div class="p-sidebar-name"><%= user.firstname %> <%= user.lastname %></div>
+          <div class="p-sidebar-email"><%= user.email %></div>
+        </div>
+      </div>
+      <a href="/profile" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </a>
+      <a href="/orders" class="p-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        My Orders
+      </a>
+      <a href="/wishlist" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        My Wishlist
+      </a>
+      <a href="/wallet" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        My Wallet
+      </a>
+      <a href="/reset-password" class="p-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Change Password
+      </a>
+      <a href="/logout" class="p-nav-item logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </a>
+    </aside>
+
+    <!-- ===== MAIN — ORDER DETAILS ===== -->
+    <main class="od-main">
+
+      <div class="od-head">
+        <div>
+          <h1 class="od-title">Order Details</h1>
+          <p class="od-meta">Order #<%= order.orderId %></p>
+          <p class="od-meta">Placed on <%= new Date(order.createdOn).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+        </div>
+        <span class="od-status <%= order.status.toLowerCase().replace(' ', '-') %>"><%= order.status %></span>
+      </div>
+
+      <!-- Items -->
+      <div class="od-card">
+        <h3>Items Ordered</h3>
+        <% order.orderedItems.forEach(function(item) { %>
+          <div class="od-item">
+            <div class="od-item-img">
+              <img src="<%= item.matchedVariant ? item.matchedVariant.images[0] : '' %>" alt="<%= item.product.name %>" />
+            </div>
+            <div class="od-item-info">
+              <div class="od-item-name"><%= item.product.name %></div>
+              <div class="od-item-sub">Qty: <%= item.quantity %> &nbsp;·&nbsp; ₹<%= item.price.toLocaleString('en-IN') %> each</div>
+            </div>
+            <div class="od-item-price">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></div>
+            <% if (item.isCancelled) { %>
+              <span class="od-item-cancelled-tag">Cancelled</span>
+            <% } else if (order.status === 'Pending' || order.status === 'Processing') { %>
+              <button class="btn-cancel-item" onclick="cancelOrderItem('<%= order._id %>', '<%= item._id %>', this)">Cancel item</button>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Address / Payment / Summary -->
+      <div class="od-grid-3">
+        <div class="od-card">
+          <h3>Shipping Address</h3>
+          <p class="od-meta" style="line-height:1.7;">
+            <%= order.address.fullName %><br/>
+            <%= order.address.street %>, <%= order.address.city %>, <%= order.address.state %> — <%= order.address.pincode %><br/>
+            <%= order.address.country %><br/>
+            Contact: +91 <%= order.address.phone %>
+          </p>
+        </div>
+
+        <div class="od-card">
+          <h3>Payment</h3>
+          <div class="od-row"><span>Method</span><span class="val"><%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod %></span></div>
+          <div class="od-row"><span>Status</span><span class="val"><%= order.status %></span></div>
+        </div>
+
+        <div class="od-card">
+          <h3>Order Summary</h3>
+          <div class="od-row"><span>Items Total</span><span class="val">₹<%= order.totalPrice.toLocaleString('en-IN') %></span></div>
+          <div class="od-row"><span>Tax</span><span class="val">₹<%= (order.finalAmount - order.totalPrice).toLocaleString('en-IN') %></span></div>
+          <div class="od-row total"><span>Grand Total</span><span class="val">₹<%= order.finalAmount.toLocaleString('en-IN') %></span></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="od-card">
+        <h3>Actions</h3>
+        <div class="od-actions">
+          <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+            <button class="btn-danger" id="cancelOrderBtn" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
+          <% } else if (order.status === 'Delivered') { %>
+            <button class="btn-danger" id="returnOrderBtn" onclick="returnOrder('<%= order._id %>')">Return Order</button>
+          <% } else if (order.status === 'Return Request') { %>
+            <span class="od-meta">Return requested — awaiting approval.</span>
+          <% } %>
+          <a href="/order-invoice/<%= order._id %>" class="btn-primary-solid">Download Invoice</a>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+async function cancelOrder(orderId) {
+  const { value: reason, isConfirmed } = await Swal.fire({
+    title: 'Cancel this order?',
+    input: 'text',
+    inputLabel: 'Reason (optional)',
+    inputPlaceholder: 'e.g. changed my mind',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, cancel order',
+    confirmButtonColor: '#e53e3e',
+    cancelButtonColor: '#2563eb',
+    background: '#111d3c',
+    color: '#e8eaf0',
+  });
+
+  if (!isConfirmed) return;
+
+  const btn = document.getElementById('cancelOrderBtn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Cancelling…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`/order-cancel/${orderId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Order Cancelled',
+        text: data.message,
+        timer: 1600,
+        showConfirmButton: false,
+        background: '#111d3c',
+        color: '#e8eaf0',
+      }).then(() => location.reload());
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Could not cancel order',
+        text: data.message,
+        background: '#111d3c',
+        color: '#e8eaf0',
+        confirmButtonColor: '#2563eb',
+      });
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Network error',
+      text: 'Could not reach the server.',
+      background: '#111d3c',
+      color: '#e8eaf0',
+      confirmButtonColor: '#2563eb',
+    });
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
+async function cancelOrderItem(orderId, itemId, btnEl) {
+  const { value: reason, isConfirmed } = await Swal.fire({
+    title: 'Cancel this item?',
+    input: 'text',
+    inputLabel: 'Reason (optional)',
+    inputPlaceholder: 'e.g. no longer needed',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, cancel item',
+    confirmButtonColor: '#e53e3e',
+    cancelButtonColor: '#2563eb',
+    background: '#111d3c',
+    color: '#e8eaf0',
+  });
+
+  if (!isConfirmed) return;
+
+  const originalText = btnEl.textContent;
+  btnEl.textContent = 'Cancelling…';
+  btnEl.disabled = true;
+
+  try {
+    const res = await fetch(`/order-item-cancel/${orderId}/${itemId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Item Cancelled',
+        text: data.message,
+        timer: 1600,
+        showConfirmButton: false,
+        background: '#111d3c',
+        color: '#e8eaf0',
+      }).then(() => location.reload());
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Could not cancel item',
+        text: data.message,
+        background: '#111d3c',
+        color: '#e8eaf0',
+        confirmButtonColor: '#2563eb',
+      });
+      btnEl.textContent = originalText;
+      btnEl.disabled = false;
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Network error',
+      text: 'Could not reach the server.',
+      background: '#111d3c',
+      color: '#e8eaf0',
+      confirmButtonColor: '#2563eb',
+    });
+    btnEl.textContent = originalText;
+    btnEl.disabled = false;
+  }
+}
+
+async function returnOrder(orderId) {
+  const { value: reason, isConfirmed } = await Swal.fire({
+    title: 'Return this order?',
+    input: 'text',
+    inputLabel: 'Reason (required)',
+    inputPlaceholder: 'e.g. item damaged, wrong size',
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'A reason is required to request a return';
+      }
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Submit Return Request',
+    confirmButtonColor: '#e53e3e',
+    cancelButtonColor: '#2563eb',
+    background: '#111d3c',
+    color: '#e8eaf0',
+  });
+
+  if (!isConfirmed) return;
+
+  const btn = document.getElementById('returnOrderBtn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`/order-return/${orderId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Return Requested',
+        text: data.message,
+        timer: 1600,
+        showConfirmButton: false,
+        background: '#111d3c',
+        color: '#e8eaf0',
+      }).then(() => location.reload());
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Could not submit return',
+        text: data.message,
+        background: '#111d3c',
+        color: '#e8eaf0',
+        confirmButtonColor: '#2563eb',
+      });
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Network error',
+      background: '#111d3c',
+      color: '#e8eaf0',
+    });
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+</script>
+
+<%- include("../partials/user/footer") %>
